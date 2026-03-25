@@ -1,0 +1,2121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Franco & Juana - Tareas del Hogar</title>
+<style>
+  :root {
+    /* Light theme colors — acuarela suave */
+    --franco: #C9A84C;
+    --juana: #7EAE8B;
+    --franco-light: #fdf6e3;
+    --juana-light: #e8f3eb;
+    --franco-wash: rgba(201,168,76,0.18);
+    --juana-wash: rgba(126,174,139,0.18);
+    --bg: #faf8f3;
+    --card: rgba(255,255,255,0.85);
+    --text: #4a4238;
+    --text-light: #8a8078;
+    --border: rgba(180,170,150,0.3);
+    --green: #7EAE8B;
+    --red: #c97a6d;
+    --heart: #d4807a;
+    --gold: #e8c44a;
+    --radius: 16px;
+    --shadow: 0 2px 12px rgba(120,100,70,0.06);
+  }
+
+  body.dark-mode {
+    --bg: #1c1a17;
+    --card: rgba(38,35,30,0.9);
+    --text: #e8e4dc;
+    --text-light: #a8a098;
+    --border: rgba(80,70,55,0.4);
+    --franco-wash: rgba(201,168,76,0.12);
+    --juana-wash: rgba(126,174,139,0.12);
+    --shadow: 0 2px 12px rgba(0,0,0,0.35);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh; padding-bottom: 90px;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.3s, color 0.3s;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, var(--franco-wash, rgba(201,168,76,0.08)) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 30%, var(--juana-wash, rgba(126,174,139,0.08)) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 90%, rgba(201,168,76,0.05) 0%, transparent 40%);
+    background-attachment: fixed;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    background:
+      linear-gradient(135deg,
+        rgba(180,148,60,0.92) 0%,
+        rgba(160,148,70,0.88) 35%,
+        rgba(110,160,120,0.88) 65%,
+        rgba(100,150,115,0.92) 100%);
+    color: white; padding: 12px 16px 8px; text-align: center;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 16px rgba(120,100,60,0.15);
+  }
+  .header h1 { font-size: 1.2rem; font-weight: 700; }
+  .header .subtitle { font-size: 0.75rem; opacity: 0.85; margin-top: 1px; }
+
+  .header-stats {
+    display: flex; justify-content: space-around; align-items: center;
+    margin-top: 8px; padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.2);
+    font-size: 0.75rem; font-weight: 600;
+  }
+  .stat-item { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+
+  .week-nav {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px; margin-top: 6px;
+  }
+  .week-nav button {
+    background: rgba(255,255,255,0.2); border: none; color: white;
+    width: 28px; height: 28px; border-radius: 50%; font-size: 1rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .week-nav button:hover { background: rgba(255,255,255,0.35); }
+  .week-label { font-size: 0.8rem; font-weight: 600; min-width: 150px; }
+  .hearts-header {
+    display: flex; justify-content: center; gap: 16px; margin-top: 4px;
+    font-size: 0.75rem; font-weight: 600;
+  }
+  .hearts-header span { display: flex; align-items: center; gap: 3px; }
+
+  /* ===== TABS ===== */
+  .tabs {
+    display: flex; background: var(--card);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 120px; z-index: 99;
+    overflow-x: auto;
+  }
+  .tab {
+    flex: 1; padding: 10px 4px; text-align: center;
+    font-size: 0.7rem; font-weight: 600; color: var(--text-light);
+    cursor: pointer; border: none; border-bottom: 3px solid transparent;
+    background: none; transition: all 0.2s; white-space: nowrap;
+  }
+  .tab.active { color: var(--franco); border-bottom-color: var(--franco); }
+
+  /* ===== CONTENT ===== */
+  .content { max-width: 600px; margin: 0 auto; padding: 12px; }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--card); border-radius: var(--radius);
+    box-shadow: var(--shadow); margin-bottom: 14px; overflow: hidden;
+    border: 1px solid var(--border);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .card-header {
+    padding: 12px 16px; font-weight: 700; font-size: 0.9rem;
+    background: #fafafa; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  body.dark-mode .card-header { background: #3a3a3a; }
+  .card-body { padding: 12px 16px; }
+
+  /* ===== TODAY HERO CARD ===== */
+  .today-hero {
+    background: linear-gradient(135deg, rgba(201,168,76,0.1), rgba(126,174,139,0.1));
+    border: 2px solid var(--franco); border-radius: 16px;
+    padding: 16px; margin-bottom: 16px;
+  }
+  body.dark-mode .today-hero { border: 2px solid var(--franco); background: linear-gradient(135deg, rgba(201,168,76,0.2), rgba(126,174,139,0.2)); }
+  .today-hero h3 { font-size: 1rem; margin-bottom: 8px; }
+  .today-hero .task-count { font-size: 0.8rem; color: var(--text-light); margin-bottom: 10px; }
+  .today-tasks-container { margin-bottom: 10px; }
+  .today-task-item {
+    display: flex; align-items: center; gap: 8px; padding: 8px;
+    background: rgba(255,255,255,0.6); border-radius: 10px; margin-bottom: 6px;
+  }
+  body.dark-mode .today-task-item { background: rgba(0,0,0,0.3); }
+  .today-task-item:last-child { margin-bottom: 0; }
+  .today-task-check {
+    width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 0.65rem; transition: all 0.2s;
+  }
+  .today-task-check.checked { background: var(--green); border-color: var(--green); color: white; }
+  .today-task-info { flex: 1; min-width: 0; }
+  .today-task-name { font-size: 0.85rem; font-weight: 500; }
+  .today-task-person { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; }
+
+  /* ===== DAY SECTION ===== */
+  .day-section { margin-bottom: 14px; }
+  .day-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px; font-weight: 700; font-size: 0.9rem;
+    background: #fafafa; border-bottom: 1px solid var(--border);
+  }
+  body.dark-mode .day-header { background: #3a3a3a; }
+  .day-header.weekend { background: linear-gradient(90deg, rgba(255,215,0,0.1), transparent); }
+  .day-goal {
+    font-size: 0.75rem; font-weight: 600; padding: 3px 10px;
+    border-radius: 12px; color: white;
+  }
+  .day-goal.complete { background: var(--green); }
+  .day-goal.partial { background: var(--franco); }
+  .weekend-badge {
+    font-size: 0.65rem; background: var(--gold); color: #333;
+    padding: 2px 7px; border-radius: 10px; font-weight: 600; margin-left: 6px;
+  }
+  .today-badge {
+    font-size: 0.65rem; background: var(--green); color: white;
+    padding: 2px 7px; border-radius: 10px; font-weight: 600; margin-left: 6px;
+  }
+
+  /* ===== TASK ITEM ===== */
+  .task-item {
+    display: flex; align-items: center; padding: 10px 16px;
+    border-bottom: 1px solid #f0f0f0; gap: 10px;
+  }
+  body.dark-mode .task-item { border-bottom: 1px solid #3a3a3a; }
+  .task-item:last-child { border-bottom: none; }
+  .task-item.completed .task-name { text-decoration: line-through; color: #aaa; }
+  .task-check {
+    width: 24px; height: 24px; border-radius: 50%;
+    border: 2px solid var(--border); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; background: none; font-size: 0.7rem;
+    transition: all 0.2s;
+  }
+  .task-check.checked {
+    background: var(--green); border-color: var(--green); color: white;
+    animation: checkBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes checkBounce {
+    0% { transform: scale(0.3); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+  .task-info { flex: 1; min-width: 0; }
+  .task-name { font-size: 0.9rem; font-weight: 500; }
+  .task-meta { font-size: 0.7rem; color: var(--text-light); margin-top: 1px; }
+  .task-person {
+    font-size: 0.7rem; font-weight: 700; padding: 3px 9px;
+    border-radius: 16px; white-space: nowrap;
+  }
+  .task-person.franco { background: var(--franco-light); color: var(--franco); }
+  .task-person.juana { background: var(--juana-light); color: var(--juana); }
+
+  /* ===== CATEGORY EMOJI ===== */
+  .task-emoji { font-size: 1rem; }
+
+  /* ===== SIZE BADGES ===== */
+  .size-badge {
+    font-size: 0.6rem; padding: 1px 5px; border-radius: 5px;
+    font-weight: 600; text-transform: uppercase; margin-right: 4px;
+  }
+  .size-badge.chica { background: #e8f5e9; color: #2e7d32; }
+  .size-badge.mediana { background: #fff3e0; color: #e65100; }
+  .size-badge.grande { background: #fce4ec; color: #c62828; }
+
+  /* ===== FREQ BADGES ===== */
+  .freq-badge {
+    font-size: 0.6rem; padding: 1px 5px; border-radius: 5px;
+    font-weight: 600; background: #e8eaf6; color: #3949ab; margin-right: 4px;
+  }
+
+  /* ===== SCORE BAR ===== */
+  .score-visual {
+    display: flex; height: 28px; border-radius: 14px;
+    overflow: hidden; margin: 8px 0;
+  }
+  .score-franco { background: var(--franco); transition: width 0.5s; }
+  .score-juana { background: var(--juana); transition: width 0.5s; }
+  .score-labels {
+    display: flex; justify-content: space-between;
+    font-size: 0.8rem; font-weight: 600;
+  }
+
+  /* ===== PROGRESS RING ===== */
+  .ring-container { text-align: center; padding: 12px 0; }
+  .progress-ring { width: 90px; height: 90px; }
+
+  /* ===== DAILY GOALS ===== */
+  .daily-goal-row {
+    display: flex; align-items: center; padding: 10px 0;
+    border-bottom: 1px solid #f5f5f5; gap: 10px;
+  }
+  body.dark-mode .daily-goal-row { border-bottom: 1px solid #3a3a3a; }
+  .daily-goal-row:last-child { border: none; }
+  .daily-goal-day { font-weight: 600; font-size: 0.85rem; width: 40px; }
+  .daily-goal-bar {
+    flex: 1; height: 20px; background: #eee; border-radius: 10px;
+    overflow: hidden; position: relative;
+  }
+  body.dark-mode .daily-goal-bar { background: #3a3a3a; }
+  .daily-goal-fill {
+    height: 100%; border-radius: 10px; transition: width 0.4s;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 700; color: white; min-width: 30px;
+  }
+  .daily-goal-fill.franco-fill { background: var(--franco); }
+  .daily-goal-fill.juana-fill { background: var(--juana); }
+  .goal-pct { font-size: 0.75rem; font-weight: 700; width: 38px; text-align: right; }
+
+  /* ===== XP & LEVEL BAR ===== */
+  .level-card {
+    background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(126,174,139,0.15));
+    border-radius: 12px; padding: 10px; margin-bottom: 10px;
+  }
+  .level-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .level-name { font-weight: 700; font-size: 0.85rem; }
+  .level-xp { font-size: 0.75rem; color: var(--text-light); }
+  .xp-bar {
+    height: 8px; background: #ddd; border-radius: 4px; overflow: hidden;
+    position: relative;
+  }
+  body.dark-mode .xp-bar { background: #3a3a3a; }
+  .xp-fill {
+    height: 100%; background: linear-gradient(90deg, var(--franco), var(--juana));
+    transition: width 0.4s; border-radius: 4px;
+  }
+
+  /* ===== STREAKS ===== */
+  .streaks-container {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    margin-bottom: 14px;
+  }
+  .streak-card {
+    background: linear-gradient(135deg, rgba(255,215,0,0.1), transparent);
+    border: 1px solid rgba(255,215,0,0.3); border-radius: 10px;
+    padding: 10px; text-align: center;
+  }
+  .streak-fire { font-size: 1.5rem; margin-bottom: 2px; }
+  .streak-count { font-size: 1.3rem; font-weight: 700; color: var(--gold); }
+  .streak-label { font-size: 0.7rem; color: var(--text-light); margin-top: 2px; }
+
+  /* ===== BADGES ===== */
+  .badges-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 10px; margin-bottom: 14px;
+  }
+  .badge {
+    background: #f0f0f0; border-radius: 10px; padding: 10px;
+    text-align: center; aspect-ratio: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  body.dark-mode .badge { background: #3a3a3a; }
+  .badge.unlocked { background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(92,184,92,0.2)); border: 1px solid var(--gold); }
+  .badge.locked { opacity: 0.4; }
+  .badge-emoji { font-size: 1.2rem; margin-bottom: 2px; }
+  .badge-name { font-size: 0.6rem; font-weight: 600; line-height: 1; }
+
+  /* ===== LEADERBOARD ===== */
+  .leaderboard-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid #f0f0f0;
+  }
+  body.dark-mode .leaderboard-row { border-bottom: 1px solid #3a3a3a; }
+  .leaderboard-row:last-child { border: none; }
+  .leaderboard-left { display: flex; align-items: center; gap: 8px; flex: 1; }
+  .leaderboard-crown { font-size: 1.3rem; }
+  .leaderboard-name { font-weight: 600; font-size: 0.9rem; }
+  .leaderboard-stat { font-size: 0.75rem; color: var(--text-light); }
+  .leaderboard-value { font-size: 1.1rem; font-weight: 700; color: var(--franco); min-width: 40px; text-align: right; }
+  .leaderboard-value.juana { color: var(--juana); }
+
+  /* ===== STATISTICS ===== */
+  .stats-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .stat-box {
+    background: linear-gradient(135deg, rgba(201,168,76,0.1), rgba(126,174,139,0.1));
+    border-radius: 10px; padding: 12px; text-align: center;
+  }
+  .stat-box h4 { font-size: 0.75rem; color: var(--text-light); margin-bottom: 4px; }
+  .stat-box .value { font-size: 1.3rem; font-weight: 700; color: var(--franco); }
+
+  /* ===== SHOP ===== */
+  .shop-item {
+    display: flex; align-items: center; padding: 14px 16px;
+    border-bottom: 1px solid #f0f0f0; gap: 12px;
+  }
+  body.dark-mode .shop-item { border-bottom: 1px solid #3a3a3a; }
+  .shop-item:last-child { border-bottom: none; }
+  .shop-emoji { font-size: 1.6rem; }
+  .shop-info { flex: 1; }
+  .shop-name { font-weight: 600; font-size: 0.9rem; }
+  .shop-cost { font-size: 0.75rem; color: var(--heart); font-weight: 600; }
+  .shop-buy {
+    padding: 8px 14px; border-radius: 10px; border: none;
+    font-weight: 700; font-size: 0.8rem; cursor: pointer;
+    transition: all 0.15s; font-family: inherit;
+  }
+  .shop-buy.can-buy { background: var(--heart); color: white; }
+  .shop-buy.can-buy:hover { transform: scale(1.05); }
+  .shop-buy.cant-buy { background: #eee; color: #aaa; cursor: default; }
+  .gift-log {
+    font-size: 0.8rem; color: var(--text-light); padding: 8px 0;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  body.dark-mode .gift-log { border-bottom: 1px solid #3a3a3a; }
+  .gift-log:last-child { border: none; }
+
+  /* ===== MANAGE ===== */
+  .manage-item {
+    display: flex; align-items: center; padding: 10px 16px;
+    border-bottom: 1px solid #f0f0f0; gap: 10px;
+  }
+  body.dark-mode .manage-item { border-bottom: 1px solid #3a3a3a; }
+  .manage-item:last-child { border-bottom: none; }
+  .manage-info { flex: 1; min-width: 0; }
+  .manage-name { font-weight: 600; font-size: 0.9rem; }
+  .manage-detail { font-size: 0.7rem; color: var(--text-light); margin-top: 2px; }
+  .manage-actions { display: flex; gap: 6px; }
+  .btn-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    border: 1px solid var(--border); background: white;
+    cursor: pointer; display: flex; align-items: center;
+    justify-content: center; font-size: 0.9rem; transition: all 0.15s;
+  }
+  body.dark-mode .btn-icon { background: #3a3a3a; }
+  .btn-icon:hover { background: #f5f5f5; }
+  body.dark-mode .btn-icon:hover { background: #4a4a4a; }
+  .btn-icon.delete:hover { background: #ffeaea; border-color: var(--red); }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5); z-index: 200;
+    justify-content: center; align-items: flex-end;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--card); border-radius: 16px 16px 0 0;
+    width: 100%; max-width: 500px; max-height: 85vh;
+    overflow-y: auto; padding: 20px;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal h2 { font-size: 1.05rem; margin-bottom: 14px; }
+  .form-group { margin-bottom: 12px; }
+  .form-group label {
+    display: block; font-size: 0.75rem; font-weight: 600;
+    color: var(--text-light); margin-bottom: 5px;
+  }
+  .form-group input, .form-group select {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+    border-radius: 8px; font-size: 0.9rem; font-family: inherit; background: var(--card);
+    color: var(--text);
+  }
+  .form-group input:focus, .form-group select:focus {
+    outline: none; border-color: var(--franco);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.15);
+  }
+  .days-picker {
+    display: flex; gap: 4px; flex-wrap: wrap;
+  }
+  .day-chip {
+    padding: 6px 10px; border-radius: 8px; font-size: 0.75rem;
+    font-weight: 600; cursor: pointer; border: 2px solid var(--border);
+    background: white; color: var(--text-light); transition: all 0.15s;
+  }
+  body.dark-mode .day-chip { background: #3a3a3a; }
+  .day-chip.selected { border-color: var(--franco); background: var(--franco-light); color: var(--franco); }
+  .form-actions { display: flex; gap: 10px; margin-top: 16px; }
+  .btn {
+    flex: 1; padding: 11px; border-radius: 10px; font-size: 0.9rem;
+    font-weight: 600; cursor: pointer; border: none; font-family: inherit;
+  }
+  .btn-primary { background: var(--franco); color: white; }
+  .btn-primary:hover { background: #b09540; }
+  .btn-secondary { background: #f0f0f0; color: var(--text); }
+  body.dark-mode .btn-secondary { background: #3a3a3a; }
+  .btn-danger { background: var(--red); color: white; }
+
+  /* ===== FAB ===== */
+  .fab {
+    position: fixed; bottom: 24px; right: 24px;
+    width: 52px; height: 52px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--franco), var(--juana));
+    color: white; border: none; font-size: 1.6rem; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    display: none; align-items: center; justify-content: center; z-index: 50;
+  }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed; top: 16px; left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: var(--text); color: white;
+    padding: 10px 18px; border-radius: 10px; font-size: 0.8rem;
+    z-index: 300; transition: transform 0.3s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ===== CONFETTI ===== */
+  .confetti-container {
+    position: fixed; inset: 0; pointer-events: none; z-index: 400;
+    overflow: hidden;
+  }
+  .confetti-heart {
+    position: absolute; font-size: 1.5rem;
+    animation: heartFall 2.5s ease-in forwards;
+  }
+  @keyframes heartFall {
+    0% { transform: translateY(-40px) rotate(0deg) scale(0.5); opacity: 1; }
+    50% { opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg) scale(1.2); opacity: 0; }
+  }
+  .victory-banner {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+    background: white; border-radius: 20px; padding: 30px 40px;
+    text-align: center; z-index: 401; box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    animation: victoryPop 0.5s 0.3s ease forwards;
+  }
+  body.dark-mode .victory-banner { background: #2d2d2d; color: white; }
+  @keyframes victoryPop {
+    0% { transform: translate(-50%, -50%) scale(0); }
+    70% { transform: translate(-50%, -50%) scale(1.1); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+  }
+  .victory-banner .big-heart { font-size: 3rem; }
+  .victory-banner .victory-text { font-size: 1.1rem; font-weight: 700; margin-top: 8px; }
+  .victory-banner .victory-sub { font-size: 0.85rem; color: var(--text-light); margin-top: 4px; }
+  .victory-banner .victory-points { font-size: 1.3rem; color: var(--heart); font-weight: 700; margin-top: 8px; }
+
+  /* ===== SETTINGS ===== */
+  .settings-section { padding: 16px; }
+  .settings-section h3 { font-size: 0.9rem; margin-bottom: 10px; }
+  .setting-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; border-bottom: 1px solid #f0f0f0;
+  }
+  body.dark-mode .setting-row { border-bottom: 1px solid #3a3a3a; }
+  .setting-row:last-child { border: none; }
+  .toggle {
+    width: 44px; height: 24px; background: #ccc; border-radius: 12px;
+    cursor: pointer; position: relative; transition: background 0.3s; border: none;
+  }
+  .toggle.on { background: var(--green); }
+  .toggle::after {
+    content: ''; width: 20px; height: 20px; background: white;
+    border-radius: 50%; position: absolute; top: 2px; left: 2px;
+    transition: transform 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .toggle.on::after { transform: translateX(20px); }
+  .export-btns { display: flex; gap: 8px; margin-top: 10px; }
+  .export-btns .btn { font-size: 0.8rem; padding: 9px; }
+
+  .person-select {
+    display: flex; gap: 8px; margin-bottom: 16px;
+  }
+  .person-btn {
+    flex: 1; padding: 10px; border-radius: 10px; border: 2px solid var(--border);
+    background: white; font-weight: 700; font-size: 0.9rem;
+    cursor: pointer; text-align: center; transition: all 0.15s;
+  }
+  body.dark-mode .person-btn { background: #3a3a3a; }
+  .person-btn.active-franco { border-color: var(--franco); background: var(--franco-light); color: var(--franco); }
+  .person-btn.active-juana { border-color: var(--juana); background: var(--juana-light); color: var(--juana); }
+
+  /* ===== QUICK ACTION ===== */
+  .quick-actions {
+    display: flex; gap: 8px; margin-bottom: 14px;
+  }
+  .quick-btn {
+    flex: 1; padding: 10px; border-radius: 10px; border: none;
+    font-weight: 600; font-size: 0.8rem; cursor: pointer;
+    background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(126,174,139,0.15));
+    color: var(--franco); transition: all 0.2s;
+  }
+  .quick-btn:hover { transform: translateY(-2px); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+  @media (min-width: 768px) {
+    .header h1 { font-size: 1.3rem; }
+    .content { padding: 14px; }
+  }
+</style>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<div class="header">
+  <h1>Franco & Juana 🏠</h1>
+  <div class="subtitle">Tareas del Hogar v3 <span id="syncStatus" style="font-size:0.6rem; opacity:0.7;">⏳ conectando...</span></div>
+  <div class="header-stats">
+    <div class="stat-item">
+      <span id="streakDisplay" style="font-size:1.2rem;">🔥 0</span>
+      <span style="font-size:0.65rem;">Racha actual</span>
+    </div>
+    <div class="stat-item">
+      <span id="francoLevelDisplay" style="font-size:1rem;">Lv1</span>
+      <span id="francoLevelName" style="font-size:0.65rem;">Franco</span>
+    </div>
+    <div class="stat-item">
+      <span id="juanaLevelDisplay" style="font-size:1rem;">Lv1</span>
+      <span id="juanaLevelName" style="font-size:0.65rem;">Juana</span>
+    </div>
+  </div>
+  <div class="week-nav">
+    <button onclick="changeWeek(-1)">&#8249;</button>
+    <span class="week-label" id="weekLabel"></span>
+    <button onclick="changeWeek(1)">&#8250;</button>
+  </div>
+  <div class="hearts-header">
+    <span style="color:var(--franco-light)">Franco: <span id="francoHearts">0</span> ❤️</span>
+    <span style="color:var(--juana-light)">Juana: <span id="juanaHearts">0</span> ❤️</span>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('semana')">Semana</button>
+  <button class="tab" onclick="switchTab('hoy')">Hoy</button>
+  <button class="tab" onclick="switchTab('progreso')">Progreso</button>
+  <button class="tab" onclick="switchTab('tienda')">Tienda</button>
+  <button class="tab" onclick="switchTab('tareas')">Tareas</button>
+  <button class="tab" onclick="switchTab('config')">Config</button>
+</div>
+
+<div class="content" id="content"></div>
+<button class="fab" id="fabBtn" onclick="openAddTask()">+</button>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal" id="modal"></div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="confetti-container" id="confetti"></div>
+
+<!-- Watercolor bird SVG (inline, used via CSS/JS) -->
+<svg id="watercolor-bird" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 180" style="display:none">
+  <defs>
+    <filter id="wc" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="wcSoft">
+      <feGaussianBlur stdDeviation="1.2"/>
+    </filter>
+    <radialGradient id="bodyGrad" cx="50%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#f5e8a8" stop-opacity="0.9"/>
+      <stop offset="40%" stop-color="#C9A84C" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="#7EAE8B" stop-opacity="0.55"/>
+    </radialGradient>
+    <radialGradient id="wingGrad" cx="30%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#7EAE8B" stop-opacity="0.75"/>
+      <stop offset="60%" stop-color="#5a8a66" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#4a7a56" stop-opacity="0.45"/>
+    </radialGradient>
+    <radialGradient id="branchGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#8B6914"/>
+      <stop offset="100%" stop-color="#6b4f10" stop-opacity="0.8"/>
+    </radialGradient>
+    <radialGradient id="leafGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#8dbd97" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#6B9E78" stop-opacity="0.5"/>
+    </radialGradient>
+    <radialGradient id="bgWash" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#f5e8a8" stop-opacity="0.18"/>
+      <stop offset="50%" stop-color="#c8e4cf" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- Background wash -->
+  <ellipse cx="100" cy="80" rx="90" ry="75" fill="url(#bgWash)" filter="url(#wcSoft)"/>
+  <!-- Branch -->
+  <path d="M30 120 Q60 115 100 110 Q140 105 175 115" stroke="url(#branchGrad)" stroke-width="5" fill="none" stroke-linecap="round" filter="url(#wc)" opacity="0.85"/>
+  <path d="M100 110 Q105 108 112 112" stroke="url(#branchGrad)" stroke-width="3" fill="none" stroke-linecap="round" filter="url(#wc)" opacity="0.7"/>
+  <!-- Leaves -->
+  <ellipse cx="145" cy="108" rx="10" ry="5" transform="rotate(-20 145 108)" fill="url(#leafGrad)" filter="url(#wc)"/>
+  <ellipse cx="160" cy="112" rx="8" ry="4" transform="rotate(-35 160 112)" fill="url(#leafGrad)" filter="url(#wc)" opacity="0.7"/>
+  <ellipse cx="55" cy="118" rx="9" ry="4.5" transform="rotate(15 55 118)" fill="url(#leafGrad)" filter="url(#wc)" opacity="0.8"/>
+  <!-- Tail feathers -->
+  <path d="M60 88 Q40 80 25 65" stroke="#4a7a56" stroke-width="3" fill="none" stroke-linecap="round" filter="url(#wc)" opacity="0.6"/>
+  <path d="M62 90 Q45 85 32 72" stroke="#3a5a40" stroke-width="2.5" fill="none" stroke-linecap="round" filter="url(#wc)" opacity="0.5"/>
+  <path d="M64 86 Q48 78 38 60" stroke="#6B9E78" stroke-width="2" fill="none" stroke-linecap="round" filter="url(#wc)" opacity="0.5"/>
+  <!-- Body -->
+  <ellipse cx="95" cy="85" rx="30" ry="24" fill="url(#bodyGrad)" filter="url(#wc)" opacity="0.9"/>
+  <!-- Chest highlight -->
+  <ellipse cx="100" cy="90" rx="15" ry="14" fill="#f5e08a" filter="url(#wcSoft)" opacity="0.5"/>
+  <!-- Wing -->
+  <path d="M75 78 Q65 70 60 60 Q72 68 82 72 Q70 72 62 66 Q74 75 85 80Z" fill="url(#wingGrad)" filter="url(#wc)" opacity="0.85"/>
+  <!-- Wing detail strokes -->
+  <path d="M72 76 Q65 70 60 62" stroke="#3a5a40" stroke-width="1" fill="none" filter="url(#wc)" opacity="0.4"/>
+  <path d="M76 78 Q70 72 66 65" stroke="#4a7a56" stroke-width="0.8" fill="none" filter="url(#wc)" opacity="0.3"/>
+  <!-- Spotted markings -->
+  <circle cx="88" cy="80" r="2.5" fill="#b09540" filter="url(#wcSoft)" opacity="0.4"/>
+  <circle cx="95" cy="76" r="2" fill="#6B9E78" filter="url(#wcSoft)" opacity="0.35"/>
+  <circle cx="102" cy="82" r="2.2" fill="#b09540" filter="url(#wcSoft)" opacity="0.3"/>
+  <circle cx="108" cy="78" r="1.8" fill="#6B9E78" filter="url(#wcSoft)" opacity="0.3"/>
+  <!-- Head -->
+  <circle cx="115" cy="70" r="14" fill="url(#bodyGrad)" filter="url(#wc)" opacity="0.9"/>
+  <circle cx="115" cy="68" r="8" fill="#f5e08a" filter="url(#wcSoft)" opacity="0.4"/>
+  <!-- Eye -->
+  <circle cx="120" cy="67" r="3.2" fill="#2d2d2d"/>
+  <circle cx="121" cy="66" r="1.2" fill="white" opacity="0.9"/>
+  <!-- Beak -->
+  <path d="M128 69 L135 71 L128 73Z" fill="#2d2d2d" filter="url(#wc)" opacity="0.85"/>
+  <!-- Head marking -->
+  <path d="M110 60 Q115 56 122 60" stroke="#6B9E78" stroke-width="2" fill="none" filter="url(#wcSoft)" opacity="0.4"/>
+  <!-- Legs -->
+  <line x1="90" y1="107" x2="88" y2="118" stroke="#8B6914" stroke-width="1.5" filter="url(#wc)" opacity="0.7"/>
+  <line x1="88" y1="118" x2="83" y2="120" stroke="#8B6914" stroke-width="1" filter="url(#wc)" opacity="0.6"/>
+  <line x1="88" y1="118" x2="92" y2="121" stroke="#8B6914" stroke-width="1" filter="url(#wc)" opacity="0.6"/>
+  <line x1="100" y1="106" x2="102" y2="117" stroke="#8B6914" stroke-width="1.5" filter="url(#wc)" opacity="0.7"/>
+  <line x1="102" y1="117" x2="97" y2="119" stroke="#8B6914" stroke-width="1" filter="url(#wc)" opacity="0.6"/>
+  <line x1="102" y1="117" x2="106" y2="120" stroke="#8B6914" stroke-width="1" filter="url(#wc)" opacity="0.6"/>
+</svg>
+
+<script>
+// ===== CONSTANTS =====
+const DAYS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const DAY_SHORT = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+const CATEGORIES = ['Cocina','Limpieza','Lavado','Baño','Orden','Plantas','Otro'];
+const HEARTS_PER_DAY = 10;
+
+const CATEGORY_EMOJI = {
+  'Cocina': '🍳',
+  'Limpieza': '🧹',
+  'Lavado': '👕',
+  'Baño': '🚿',
+  'Orden': '📦',
+  'Plantas': '🌱',
+  'Otro': '⭐',
+};
+
+const LEVEL_THRESHOLDS = [0, 100, 250, 500, 1000, 2000, 3500];
+const LEVEL_NAMES = [
+  'Roomie Novato',
+  'Ayudante del Hogar',
+  'Maestro/a de la Escoba',
+  'Ninja del Orden',
+  'Leyenda Doméstica',
+  'Deidad del Hogar',
+  'Deidad del Hogar',
+];
+
+const ALL_BADGES = [
+  { id: 'first-task', name: 'Primera tarea', emoji: '🚀', check: (s) => s.totalTasksCompleted >= 1 },
+  { id: 'perfect-day', name: 'Día perfecto', emoji: '⭐', check: (s) => s.perfectDaysCount >= 1 },
+  { id: 'perfect-week', name: 'Semana impecable', emoji: '💎', check: (s) => s.perfectWeeksCount >= 1 },
+  { id: 'streak-7', name: 'Racha de 7', emoji: '🔥', check: (s) => s.streaks.best >= 7 },
+  { id: 'streak-30', name: 'Racha de 30', emoji: '🌟', check: (s) => s.streaks.best >= 30 },
+  { id: 'tasks-100', name: '100 tareas', emoji: '💯', check: (s) => s.totalTasksCompleted >= 100 },
+  { id: 'tasks-500', name: '500 tareas', emoji: '🏆', check: (s) => s.totalTasksCompleted >= 500 },
+  { id: 'level-5', name: 'Nivel 5', emoji: '👑', check: (s) => (getLevel(s.franco.xp) >= 5 || getLevel(s.juana.xp) >= 5) },
+  { id: 'first-gift', name: 'Primer regalo', emoji: '🎁', check: (s) => s.giftLog.length >= 1 },
+  { id: 'generous', name: 'Generoso/a', emoji: '💝', check: (s) => s.giftLog.length >= 10 },
+];
+
+// ===== DEFAULT WEEKLY SCHEDULE TEMPLATE =====
+const DEFAULT_TASKS = [
+  { id:1,  name:'Lavar los platos',       size:'chica',   cat:'Cocina',   group:'A', days:[0,1,2,3,4,5,6] },
+  { id:2,  name:'Tender la cama',         size:'chica',   cat:'Orden',    group:'A', days:[0,1,2,3,4,5,6] },
+  { id:3,  name:'Cocinar almuerzo',       size:'chica',   cat:'Cocina',   group:'B', days:[0,1,2,3,4,5,6] },
+  { id:4,  name:'Cocinar cena',           size:'chica',   cat:'Cocina',   group:'B', days:[0,1,2,3,4,5,6] },
+  { id:5,  name:'Tito abajo',             size:'chica',   cat:'Limpieza', group:'A', days:[0,2,4] },
+  { id:6,  name:'Tito arriba',            size:'chica',   cat:'Limpieza', group:'B', days:[1,3,5] },
+  { id:7,  name:'Sacar la basura',        size:'chica',   cat:'Limpieza', group:'B', days:[2,5] },
+  { id:8,  name:'Lavar y tender ropa',    size:'mediana', cat:'Lavado', group:'A', days:[1] },
+  { id:9,  name:'Doblar y guardar ropa',  size:'mediana', cat:'Lavado', group:'B', days:[1] },
+  { id:17, name:'Lavar y tender ropa',    size:'mediana', cat:'Lavado', group:'B', days:[4] },
+  { id:18, name:'Doblar y guardar ropa',  size:'mediana', cat:'Lavado', group:'A', days:[4] },
+  { id:10, name:'Ordenar abajo',          size:'chica',   cat:'Orden',    group:'A', days:[2,5] },
+  { id:11, name:'Controlar plantas',      size:'chica',   cat:'Plantas',  group:'B', days:[0,2,4,6] },
+  { id:12, name:'Limpiar el baño',        size:'grande',  cat:'Baño',     group:'A', days:[5] },
+  { id:13, name:'Cambiar sábanas',        size:'mediana', cat:'Orden',    group:'B', days:[5] },
+  { id:14, name:'Limpiar cocina a fondo', size:'grande',  cat:'Cocina',   group:'A', days:[6] },
+  { id:15, name:'Limpiar heladera',       size:'mediana', cat:'Cocina',   group:'B', days:[6] },
+  { id:16, name:'Limpieza de vidrios',    size:'grande',  cat:'Limpieza', group:'A', days:[5], biweekly:true },
+];
+
+// ===== DEFAULT SHOP =====
+const DEFAULT_SHOP = [
+  { id:1, name:'Masaje de 15 min',          cost:10,  emoji:'💆' },
+  { id:2, name:'Elegir peli/serie',         cost:15,  emoji:'🎬' },
+  { id:3, name:'Carta de amor',             cost:20,  emoji:'💌' },
+  { id:4, name:'Desayuno en la cama',       cost:30,  emoji:'🥐' },
+  { id:5, name:'Cena romántica en casa',    cost:40,  emoji:'🕯️' },
+  { id:6, name:'Día libre de tareas',       cost:50,  emoji:'🏖️' },
+  { id:7, name:'Salida sorpresa',           cost:75,  emoji:'🎁' },
+  { id:8, name:'Pedido especial (lo que quieras)', cost:100, emoji:'⭐' },
+];
+
+// ===== STATE =====
+let state = loadState();
+let currentTab = 'semana';
+let currentWeekOffset = 0;
+let celebratedDays = new Set();
+
+function getDefaultState() {
+  return {
+    tasks: DEFAULT_TASKS.map(t => ({...t})),
+    nextId: 19,
+    completions: {},
+    hearts: { franco: 0, juana: 0 },
+    heartsClaimed: {},
+    giftLog: [],
+    shop: DEFAULT_SHOP.map(s => ({...s})),
+    nextShopId: 9,
+    notificationsEnabled: false,
+    darkMode: false,
+    streaks: { current: 0, best: 0 },
+    franco: { xp: 0 },
+    juana: { xp: 0 },
+    unlockedBadges: [],
+    totalTasksCompleted: 0,
+    perfectDaysCount: 0,
+    perfectWeeksCount: 0,
+    lastPerfectDayKey: null,
+  };
+}
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('tareas-fj-v3');
+    if (s) {
+      const parsed = JSON.parse(s);
+      return migrateState(parsed);
+    }
+    // Try v2 migration
+    const s2 = localStorage.getItem('tareas-fj-v2');
+    if (s2) {
+      const parsed = JSON.parse(s2);
+      return migrateState(parsed);
+    }
+  } catch(e) { console.error(e); }
+  return getDefaultState();
+}
+
+function migrateState(s) {
+  if (!s.hearts) s.hearts = { franco: 0, juana: 0 };
+  if (!s.heartsClaimed) s.heartsClaimed = {};
+  if (!s.giftLog) s.giftLog = [];
+  if (!s.shop) { s.shop = DEFAULT_SHOP.map(x => ({...x})); s.nextShopId = 9; }
+  if (!s.streaks) s.streaks = { current: 0, best: 0 };
+  if (!s.franco) s.franco = { xp: 0 };
+  if (!s.juana) s.juana = { xp: 0 };
+  if (!s.unlockedBadges) s.unlockedBadges = [];
+  if (!s.totalTasksCompleted) s.totalTasksCompleted = 0;
+  if (!s.perfectDaysCount) s.perfectDaysCount = 0;
+  if (!s.perfectWeeksCount) s.perfectWeeksCount = 0;
+  if (!s.darkMode) s.darkMode = false;
+  return s;
+}
+
+// ===== FIREBASE SETUP =====
+const firebaseConfig = {
+  apiKey: "AIzaSyBx2v6_D2-PZpe-Se0O4N-JVjRn7udDH3U",
+  authDomain: "tareas-verderillo.firebaseapp.com",
+  databaseURL: "https://tareas-verderillo-default-rtdb.firebaseio.com",
+  projectId: "tareas-verderillo",
+  storageBucket: "tareas-verderillo.firebasestorage.app",
+  messagingSenderId: "842326208566",
+  appId: "1:842326208566:web:c814edee456c547636e897"
+};
+const fbApp = firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const stateRef = db.ref('tareas-hogar/state');
+let isSyncingFromFirebase = false; // evita loops infinitos
+
+function saveState() {
+  localStorage.setItem('tareas-fj-v3', JSON.stringify(state));
+  // Solo sube a Firebase si el cambio fue local (no si vino de Firebase)
+  if (!isSyncingFromFirebase) {
+    stateRef.set(JSON.parse(JSON.stringify(state)))
+      .catch(err => console.error('Firebase save error:', err));
+  }
+}
+
+// Escuchar cambios en tiempo real desde Firebase
+stateRef.on('value', (snapshot) => {
+  const remoteState = snapshot.val();
+  if (!remoteState || !remoteState.tasks) return;
+  // Comparar si el estado remoto es diferente al local
+  const localJSON = JSON.stringify(state);
+  const remoteJSON = JSON.stringify(remoteState);
+  if (localJSON === remoteJSON) return;
+  // Aplicar estado remoto
+  isSyncingFromFirebase = true;
+  state = migrateState(remoteState);
+  localStorage.setItem('tareas-fj-v3', JSON.stringify(state));
+  if (state.darkMode) document.body.classList.add('dark-mode');
+  else document.body.classList.remove('dark-mode');
+  render();
+  isSyncingFromFirebase = false;
+});
+
+// ===== XP & LEVELS =====
+function getLevel(xp) {
+  for (let i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
+    if (xp >= LEVEL_THRESHOLDS[i]) return i + 1;
+  }
+  return 1;
+}
+
+function getXpForLevel(level) {
+  return LEVEL_THRESHOLDS[Math.min(level - 1, LEVEL_THRESHOLDS.length - 1)];
+}
+
+function getXpToNextLevel(xp) {
+  const level = getLevel(xp);
+  const current = getXpForLevel(level);
+  const next = level < LEVEL_THRESHOLDS.length ? LEVEL_THRESHOLDS[level] : LEVEL_THRESHOLDS[LEVEL_THRESHOLDS.length - 1] + 5000;
+  return Math.max(0, next - xp);
+}
+
+function addXp(person, amount) {
+  if (person === 'franco') {
+    state.franco.xp += amount;
+  } else {
+    state.juana.xp += amount;
+  }
+}
+
+function getXpForTask(size) {
+  return { chica: 5, mediana: 10, grande: 20 }[size] || 5;
+}
+
+// ===== STREAKS =====
+function updateStreaks() {
+  const today = getTodayDayIndex();
+  const isCurrent = isCurrentWeek();
+  if (!isCurrent) return;
+
+  const wk = getWeekKey();
+  const stats = getDayStats(today);
+
+  if (stats.francoPct === 100 && stats.francoTotal > 0 && stats.juanaPct === 100 && stats.juanaTotal > 0) {
+    state.streaks.current++;
+    if (state.streaks.current > state.streaks.best) {
+      state.streaks.best = state.streaks.current;
+    }
+  }
+}
+
+// ===== WEEK LOGIC =====
+function getWeekNumber(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+function getCurrentWeekStart() {
+  const now = new Date();
+  now.setDate(now.getDate() + (currentWeekOffset * 7));
+  const day = now.getDay();
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+  const ws = new Date(now);
+  ws.setDate(diff);
+  ws.setHours(0,0,0,0);
+  return ws;
+}
+
+function getWeekKey() {
+  const ws = getCurrentWeekStart();
+  return `${ws.getFullYear()}-W${getWeekNumber(ws)}`;
+}
+
+function getTodayDayIndex() {
+  const d = new Date().getDay();
+  return d === 0 ? 6 : d - 1;
+}
+
+function isCurrentWeek() {
+  return currentWeekOffset === 0;
+}
+
+function changeWeek(dir) {
+  currentWeekOffset += dir;
+  render();
+}
+
+function isBiweeklyActive() {
+  const ws = getCurrentWeekStart();
+  return getWeekNumber(ws) % 2 === 0;
+}
+
+// ===== ASSIGNMENT LOGIC =====
+function getAssignment() {
+  const ws = getCurrentWeekStart();
+  const weekNum = getWeekNumber(ws);
+  const francoIsA = weekNum % 2 === 0;
+  return {
+    getPerson: (group) => {
+      if (group === 'A') return francoIsA ? 'Franco' : 'Juana';
+      return francoIsA ? 'Juana' : 'Franco';
+    },
+    francoGroup: francoIsA ? 'A' : 'B',
+    juanaGroup: francoIsA ? 'B' : 'A',
+  };
+}
+
+// ===== SCHEDULE BUILDER =====
+function getTasksForDay(dayIdx) {
+  const biweekly = isBiweeklyActive();
+  const assign = getAssignment();
+  return state.tasks
+    .filter(t => {
+      if (!t.days || !t.days.includes(dayIdx)) return false;
+      if (t.biweekly && !biweekly) return false;
+      return true;
+    })
+    .map(t => ({
+      ...t,
+      person: assign.getPerson(t.group),
+    }));
+}
+
+// ===== COMPLETIONS =====
+function compKey(dayIdx, taskId) {
+  return `${getWeekKey()}:${dayIdx}:${taskId}`;
+}
+
+function isCompleted(dayIdx, taskId) {
+  return !!state.completions[compKey(dayIdx, taskId)];
+}
+
+function toggleCompletion(dayIdx, taskId) {
+  const key = compKey(dayIdx, taskId);
+  const task = state.tasks.find(t => t.id === taskId);
+
+  if (state.completions[key]) {
+    delete state.completions[key];
+  } else {
+    state.completions[key] = true;
+    state.totalTasksCompleted++;
+    if (task) {
+      const assign = getAssignment();
+      const person = assign.getPerson(task.group);
+      const xpGain = getXpForTask(task.size);
+      addXp(person.toLowerCase(), xpGain);
+    }
+  }
+  saveState();
+  checkDayCompletion(dayIdx);
+  checkBadges();
+  render();
+}
+
+// ===== DAILY GOALS & HEARTS =====
+function getDayStats(dayIdx) {
+  const tasks = getTasksForDay(dayIdx);
+  const assign = getAssignment();
+
+  let francoTotal = 0, francoCompleted = 0;
+  let juanaTotal = 0, juanaCompleted = 0;
+
+  tasks.forEach(t => {
+    const done = isCompleted(dayIdx, t.id);
+    if (t.person === 'Franco') {
+      francoTotal++;
+      if (done) francoCompleted++;
+    } else {
+      juanaTotal++;
+      if (done) juanaCompleted++;
+    }
+  });
+
+  return {
+    francoTotal, francoCompleted,
+    juanaTotal, juanaCompleted,
+    francoPct: francoTotal ? Math.round(francoCompleted / francoTotal * 100) : 100,
+    juanaPct: juanaTotal ? Math.round(juanaCompleted / juanaTotal * 100) : 100,
+    totalTasks: tasks.length,
+    totalCompleted: francoCompleted + juanaCompleted,
+    totalPct: tasks.length ? Math.round((francoCompleted + juanaCompleted) / tasks.length * 100) : 100,
+  };
+}
+
+function checkDayCompletion(dayIdx) {
+  const stats = getDayStats(dayIdx);
+  const wk = getWeekKey();
+
+  // Check Franco
+  if (stats.francoPct === 100 && stats.francoTotal > 0) {
+    const claimKey = `${wk}:${dayIdx}:Franco`;
+    if (!state.heartsClaimed[claimKey]) {
+      state.heartsClaimed[claimKey] = true;
+      state.hearts.franco += HEARTS_PER_DAY;
+      state.perfectDaysCount++;
+      saveState();
+      if (!celebratedDays.has(claimKey)) {
+        celebratedDays.add(claimKey);
+        celebrateVictory('Franco', HEARTS_PER_DAY);
+      }
+    }
+  }
+
+  // Check Juana
+  if (stats.juanaPct === 100 && stats.juanaTotal > 0) {
+    const claimKey = `${wk}:${dayIdx}:Juana`;
+    if (!state.heartsClaimed[claimKey]) {
+      state.heartsClaimed[claimKey] = true;
+      state.hearts.juana += HEARTS_PER_DAY;
+      state.perfectDaysCount++;
+      saveState();
+      if (!celebratedDays.has(claimKey)) {
+        celebratedDays.add(claimKey);
+        celebrateVictory('Juana', HEARTS_PER_DAY);
+      }
+    }
+  }
+
+  updateStreaks();
+}
+
+// ===== BADGES =====
+function checkBadges() {
+  const stats = {
+    totalTasksCompleted: state.totalTasksCompleted,
+    perfectDaysCount: state.perfectDaysCount,
+    perfectWeeksCount: state.perfectWeeksCount,
+    streaks: state.streaks,
+    franco: state.franco,
+    juana: state.juana,
+    giftLog: state.giftLog,
+  };
+
+  ALL_BADGES.forEach(badge => {
+    if (!state.unlockedBadges.includes(badge.id) && badge.check(stats)) {
+      state.unlockedBadges.push(badge.id);
+      showToast(`🏆 Logro desbloqueado: ${badge.name}!`);
+    }
+  });
+  saveState();
+}
+
+// ===== CELEBRATION =====
+function celebrateVictory(person, points) {
+  const container = document.getElementById('confetti');
+  const colors = person === 'Franco'
+    ? ['#C9A84C','#e0c96e','#f5e8a8','#d4807a']
+    : ['#7EAE8B','#a5ccaf','#c8e4cf','#d4807a'];
+
+  for (let i = 0; i < 30; i++) {
+    const heart = document.createElement('div');
+    heart.className = 'confetti-heart';
+    heart.textContent = '❤️';
+    heart.style.left = Math.random() * 100 + '%';
+    heart.style.animationDelay = Math.random() * 1.5 + 's';
+    heart.style.fontSize = (1 + Math.random() * 1.5) + 'rem';
+    container.appendChild(heart);
+  }
+
+  const banner = document.createElement('div');
+  banner.className = 'victory-banner';
+  // Clone bird SVG for victory
+  const birdSvg = document.getElementById('watercolor-bird');
+  const birdClone = birdSvg.cloneNode(true);
+  birdClone.removeAttribute('id');
+  birdClone.style.display = 'block';
+  birdClone.style.width = '120px';
+  birdClone.style.height = 'auto';
+  birdClone.style.margin = '0 auto 8px';
+  banner.appendChild(birdClone);
+  banner.innerHTML += `
+    <div class="victory-text">¡${person} completó el día!</div>
+    <div class="victory-sub">Todas las tareas del día terminadas</div>
+    <div class="victory-points">+${points} ❤️</div>
+  `;
+  container.appendChild(banner);
+
+  setTimeout(() => {
+    container.innerHTML = '';
+  }, 4000);
+}
+
+// ===== RENDERING =====
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const tabs = ['semana','hoy','progreso','tienda','tareas','config'];
+    t.classList.toggle('active', tabs[i] === tab);
+  });
+  document.getElementById('fabBtn').style.display = (tab === 'tareas' || tab === 'tienda') ? 'flex' : 'none';
+  render();
+}
+
+function render() {
+  updateHeader();
+  const c = document.getElementById('content');
+  switch(currentTab) {
+    case 'semana':   c.innerHTML = renderWeek(); break;
+    case 'hoy':      c.innerHTML = renderToday(); break;
+    case 'progreso': c.innerHTML = renderProgress(); break;
+    case 'tienda':   c.innerHTML = renderShop(); break;
+    case 'tareas':   c.innerHTML = renderManage(); break;
+    case 'config':   c.innerHTML = renderConfig(); break;
+  }
+}
+
+function updateHeader() {
+  const ws = getCurrentWeekStart();
+  const we = new Date(ws); we.setDate(we.getDate() + 6);
+  const fmt = d => `${d.getDate()}/${d.getMonth()+1}`;
+  const wn = getWeekNumber(ws);
+  document.getElementById('weekLabel').textContent =
+    `${fmt(ws)} - ${fmt(we)} (S${wn})`;
+  document.getElementById('francoHearts').textContent = state.hearts.franco;
+  document.getElementById('juanaHearts').textContent = state.hearts.juana;
+
+  document.getElementById('streakDisplay').textContent = `🔥 ${state.streaks.current}`;
+  const francoLv = getLevel(state.franco.xp);
+  const juanaLv = getLevel(state.juana.xp);
+  document.getElementById('francoLevelDisplay').textContent = `Lv${francoLv}`;
+  document.getElementById('francoLevelName').textContent = LEVEL_NAMES[francoLv - 1] || 'Deidad';
+  document.getElementById('juanaLevelDisplay').textContent = `Lv${juanaLv}`;
+  document.getElementById('juanaLevelName').textContent = LEVEL_NAMES[juanaLv - 1] || 'Deidad';
+}
+
+// ===== TODAY VIEW =====
+function renderToday() {
+  const today = getTodayDayIndex();
+  const isCurrent = isCurrentWeek();
+
+  if (!isCurrent) {
+    return '<div style="text-align:center;padding:40px;color:var(--text-light)"><div style="font-size:2rem">📅</div><p>Volvé a esta semana para ver "Hoy"</p></div>';
+  }
+
+  const tasks = getTasksForDay(today);
+  if (tasks.length === 0) {
+    return '<div style="text-align:center;padding:40px;color:var(--text-light)"><div style="font-size:2rem">✨</div><p>¡Hoy no hay tareas! ¡A disfrutar!</p></div>';
+  }
+
+  const stats = getDayStats(today);
+  const assign = getAssignment();
+
+  let html = `<div class="today-hero">
+    <h3>📋 ${DAYS[today]}</h3>
+    <div class="task-count">${stats.totalCompleted} de ${stats.totalTasks} tareas completadas</div>
+
+    <div style="margin-bottom:12px">
+      <div style="font-size:0.75rem;color:var(--text-light);margin-bottom:4px">Progreso general</div>
+      <div style="display:flex;height:24px;border-radius:12px;overflow:hidden;background:#eee">
+        <div style="width:${stats.totalPct}%;background:linear-gradient(90deg,var(--franco),var(--juana));display:flex;align-items:center;justify-content:center;color:white;font-size:0.7rem;font-weight:700">${stats.totalPct}%</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <div style="background:rgba(201,168,76,0.1);border-radius:8px;padding:8px;text-align:center">
+        <div style="font-size:0.75rem;color:var(--franco);font-weight:600">Franco</div>
+        <div style="font-size:1.1rem;font-weight:700;color:var(--franco)">${stats.francoCompleted}/${stats.francoTotal}</div>
+        <div style="font-size:0.7rem;color:var(--text-light)">${stats.francoPct}%</div>
+      </div>
+      <div style="background:rgba(126,174,139,0.1);border-radius:8px;padding:8px;text-align:center">
+        <div style="font-size:0.75rem;color:var(--juana);font-weight:600">Juana</div>
+        <div style="font-size:1.1rem;font-weight:700;color:var(--juana)">${stats.juanaCompleted}/${stats.juanaTotal}</div>
+        <div style="font-size:0.7rem;color:var(--text-light)">${stats.juanaPct}%</div>
+      </div>
+    </div>
+
+    <div class="today-tasks-container">`;
+
+  const francoTasks = tasks.filter(t => t.person === 'Franco');
+  const juanaTasks = tasks.filter(t => t.person === 'Juana');
+
+  function renderPersonTodayTasks(personTasks, personName) {
+    let h = '';
+    if (personTasks.length > 0) {
+      h += `<div style="font-weight:600;font-size:0.8rem;margin-bottom:6px;color:${personName==='Franco'?'var(--franco)':'var(--juana)'}">${personName}</div>`;
+      personTasks.forEach(t => {
+        const done = isCompleted(today, t.id);
+        h += `<div class="today-task-item">
+          <button class="today-task-check ${done ? 'checked' : ''}" onclick="toggleCompletion(${today},${t.id})">${done ? '✓' : ''}</button>
+          <div class="today-task-info">
+            <div class="today-task-name">${CATEGORY_EMOJI[t.cat] || '⭐'} ${t.name}</div>
+          </div>
+        </div>`;
+      });
+    }
+    return h;
+  }
+
+  html += renderPersonTodayTasks(francoTasks, 'Franco');
+  html += renderPersonTodayTasks(juanaTasks, 'Juana');
+
+  html += `</div></div>`;
+
+  // Rest of the week collapsed
+  html += `<div style="margin-top:16px"><div style="font-weight:700;font-size:0.85rem;margin-bottom:8px;color:var(--text-light)">Resto de la semana</div>`;
+  DAYS.forEach((day, idx) => {
+    if (idx === today) return;
+    const dayTasks = getTasksForDay(idx);
+    if (dayTasks.length === 0) return;
+    const dayStats = getDayStats(idx);
+    const isWeekend = idx >= 5;
+    html += `<div class="card" style="margin-bottom:8px">
+      <div class="day-header ${isWeekend ? 'weekend' : ''}">
+        <div>${day} ${isWeekend ? '<span class="weekend-badge">FINDE</span>' : ''}</div>
+        <span class="day-goal ${dayStats.totalPct === 100 ? 'complete' : 'partial'}">${dayStats.totalPct}%</span>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+
+  return html;
+}
+
+// ===== WEEK VIEW =====
+function renderWeek() {
+  let html = '';
+  const assign = getAssignment();
+  const today = getTodayDayIndex();
+  const isCurrent = isCurrentWeek();
+
+  // Distribution bar
+  const sizeW = { chica:1, mediana:2, grande:3 };
+  let fW = 0, jW = 0;
+  const biweekly = isBiweeklyActive();
+  state.tasks.forEach(t => {
+    if (t.biweekly && !biweekly) return;
+    const w = sizeW[t.size] * (t.days ? t.days.length : 0);
+    if (assign.getPerson(t.group) === 'Franco') fW += w; else jW += w;
+  });
+  const tot = fW + jW || 1;
+  const fPct = Math.round(fW/tot*100);
+
+  html += `<div class="card"><div class="card-body">
+    <div style="font-weight:700;font-size:0.85rem;text-align:center;margin-bottom:8px">
+      Distribución semanal
+    </div>
+    <div class="score-visual">
+      <div class="score-franco" style="width:${fPct}%"></div>
+      <div class="score-juana" style="width:${100-fPct}%"></div>
+    </div>
+    <div class="score-labels">
+      <span style="color:var(--franco)">Franco ${fPct}%</span>
+      <span style="color:var(--juana)">Juana ${100-fPct}%</span>
+    </div>
+    <div style="text-align:center;font-size:0.7rem;color:var(--text-light);margin-top:6px">
+      Esta semana Franco = Turno ${assign.francoGroup} · Juana = Turno ${assign.juanaGroup}
+    </div>
+  </div></div>`;
+
+  // Days
+  DAYS.forEach((day, idx) => {
+    const tasks = getTasksForDay(idx);
+    if (tasks.length === 0) return;
+
+    const stats = getDayStats(idx);
+    const isToday = isCurrent && idx === today;
+    const isWeekend = idx >= 5;
+
+    html += `<div class="card day-section">
+      <div class="day-header ${isWeekend ? 'weekend' : ''}">
+        <div>
+          ${day}
+          ${isToday ? '<span class="today-badge">HOY</span>' : ''}
+          ${isWeekend ? '<span class="weekend-badge">FINDE</span>' : ''}
+        </div>
+        <span class="day-goal ${stats.totalPct === 100 ? 'complete' : 'partial'}">${stats.totalPct}%</span>
+      </div>`;
+
+    const francoTasks = tasks.filter(t => t.person === 'Franco');
+    const juanaTasks = tasks.filter(t => t.person === 'Juana');
+
+    function renderPersonTasks(personTasks, personName) {
+      if (personTasks.length === 0) return '';
+      let h = '';
+      personTasks.forEach(t => {
+        const done = isCompleted(idx, t.id);
+        const pClass = personName.toLowerCase();
+        h += `<div class="task-item ${done ? 'completed' : ''}">
+          <button class="task-check ${done ? 'checked' : ''}" onclick="toggleCompletion(${idx},${t.id})">${done ? '✓' : ''}</button>
+          <div class="task-info">
+            <div class="task-name">${CATEGORY_EMOJI[t.cat] || '⭐'} ${t.name}</div>
+            <div class="task-meta">
+              <span class="size-badge ${t.size}">${t.size}</span>${t.cat}
+            </div>
+          </div>
+          <span class="task-person ${pClass}">${personName}</span>
+        </div>`;
+      });
+      return h;
+    }
+
+    html += renderPersonTasks(francoTasks, 'Franco');
+    html += renderPersonTasks(juanaTasks, 'Juana');
+    html += '</div>';
+  });
+
+  if (state.tasks.length === 0) {
+    html = '<div style="text-align:center;padding:40px;color:var(--text-light)"><div style="font-size:3rem">📋</div><p>No hay tareas. Andá a "Tareas" para agregar.</p></div>';
+  }
+
+  return html;
+}
+
+// ===== PROGRESS VIEW =====
+function renderProgress() {
+  let html = '';
+  const today = getTodayDayIndex();
+  const isCurrent = isCurrentWeek();
+
+  // Streaks section
+  html += `<div class="streaks-container">
+    <div class="streak-card">
+      <div class="streak-fire">🔥</div>
+      <div class="streak-count">${state.streaks.current}</div>
+      <div class="streak-label">Racha actual</div>
+    </div>
+    <div class="streak-card">
+      <div class="streak-fire">⭐</div>
+      <div class="streak-count">${state.streaks.best}</div>
+      <div class="streak-label">Mejor racha</div>
+    </div>
+  </div>`;
+
+  // XP & Levels
+  html += `<div class="card"><div class="card-header">Niveles y XP</div><div class="card-body">`;
+
+  ['franco', 'juana'].forEach(person => {
+    const xp = person === 'franco' ? state.franco.xp : state.juana.xp;
+    const level = getLevel(xp);
+    const nextLevel = level + 1;
+    const currentThreshold = LEVEL_THRESHOLDS[level - 1] || 0;
+    const nextThreshold = LEVEL_THRESHOLDS[level] || currentThreshold + 5000;
+    const xpInLevel = xp - currentThreshold;
+    const xpToNext = nextThreshold - xp;
+    const progress = ((xp - currentThreshold) / (nextThreshold - currentThreshold)) * 100;
+
+    const personName = person === 'franco' ? 'Franco' : 'Juana';
+    const nameColor = person === 'franco' ? 'var(--franco)' : 'var(--juana)';
+
+    html += `<div class="level-card">
+      <div class="level-header">
+        <div><span style="color:${nameColor};font-weight:700">${personName}</span> - Nivel ${level}</div>
+        <div class="level-xp">${xp} XP</div>
+      </div>
+      <div class="xp-bar">
+        <div class="xp-fill" style="width:${progress}%;background:${person==='franco'?'var(--franco)':'var(--juana)'}"></div>
+      </div>
+      <div style="font-size:0.7rem;color:var(--text-light);margin-top:4px;text-align:center">
+        ${xpToNext} XP para nivel ${nextLevel}
+      </div>
+    </div>`;
+  });
+
+  html += `</div></div>`;
+
+  // Badges
+  html += `<div class="card"><div class="card-header">Logros</div><div class="card-body"><div class="badges-grid">`;
+  ALL_BADGES.forEach(badge => {
+    const unlocked = state.unlockedBadges.includes(badge.id);
+    html += `<div class="badge ${unlocked ? 'unlocked' : 'locked'}" title="${badge.name}">
+      <div class="badge-emoji">${badge.emoji}</div>
+      <div class="badge-name">${unlocked ? badge.name : '???'}</div>
+    </div>`;
+  });
+  html += `</div></div></div>`;
+
+  // Weekly summary ring
+  let weekTotal = 0, weekDone = 0;
+  DAYS.forEach((_, idx) => {
+    const stats = getDayStats(idx);
+    weekTotal += stats.totalTasks;
+    weekDone += stats.totalCompleted;
+  });
+  const weekPct = weekTotal ? Math.round(weekDone/weekTotal*100) : 0;
+  const r = 38, c = 2*Math.PI*r;
+  const off = c - (weekPct/100)*c;
+
+  html += `<div class="card"><div class="card-body ring-container">
+    <div style="font-weight:700;font-size:0.9rem;margin-bottom:4px">Progreso semanal</div>
+    <svg class="progress-ring" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="${r}" fill="none" stroke="#eee" stroke-width="7"/>
+      <circle cx="50" cy="50" r="${r}" fill="none"
+        stroke="${weekPct===100?'var(--green)':'var(--franco)'}"
+        stroke-width="7" stroke-linecap="round"
+        stroke-dasharray="${c}" stroke-dashoffset="${off}"
+        transform="rotate(-90 50 50)" style="transition:stroke-dashoffset 0.5s"/>
+      <text x="50" y="54" text-anchor="middle" font-size="16" font-weight="700" fill="var(--text)">${weekPct}%</text>
+    </svg>
+    <div style="font-size:0.8rem;color:var(--text-light)">${weekDone} de ${weekTotal} tareas</div>
+    ${weekPct === 100 ? '<div style="margin-top:10px;font-size:1rem;font-weight:700;color:var(--green)">🎉 ¡Semana perfecta! 🎉</div>' : ''}
+  </div></div>`;
+
+  // Leaderboard
+  const wk = getWeekKey();
+  let francoHeartsWeek = 0, juanaHeartsWeek = 0;
+  DAYS.forEach((_, idx) => {
+    if (state.heartsClaimed[`${wk}:${idx}:Franco`]) francoHeartsWeek += HEARTS_PER_DAY;
+    if (state.heartsClaimed[`${wk}:${idx}:Juana`]) juanaHeartsWeek += HEARTS_PER_DAY;
+  });
+
+  let francoCompletedDays = 0, juanaCompletedDays = 0;
+  DAYS.forEach((_, idx) => {
+    if (state.heartsClaimed[`${wk}:${idx}:Franco`]) francoCompletedDays++;
+    if (state.heartsClaimed[`${wk}:${idx}:Juana`]) juanaCompletedDays++;
+  });
+
+  const franco1st = francoCompletedDays > juanaCompletedDays;
+
+  html += `<div class="card"><div class="card-header">🏅 Leaderboard Semanal</div><div class="card-body">
+    <div class="leaderboard-row">
+      <div class="leaderboard-left">
+        ${franco1st ? '<div class="leaderboard-crown">👑</div>' : ''}
+        <div>
+          <div class="leaderboard-name">Franco</div>
+          <div class="leaderboard-stat">${francoCompletedDays} días completados</div>
+        </div>
+      </div>
+      <div class="leaderboard-value">${francoCompletedDays}</div>
+    </div>
+    <div class="leaderboard-row">
+      <div class="leaderboard-left">
+        ${!franco1st && juanaCompletedDays > francoCompletedDays ? '<div class="leaderboard-crown">👑</div>' : ''}
+        <div>
+          <div class="leaderboard-name">Juana</div>
+          <div class="leaderboard-stat">${juanaCompletedDays} días completados</div>
+        </div>
+      </div>
+      <div class="leaderboard-value juana">${juanaCompletedDays}</div>
+    </div>
+  </div></div>`;
+
+  // Statistics
+  html += `<div class="card"><div class="card-header">📊 Estadísticas</div><div class="card-body">
+    <div class="stats-grid">
+      <div class="stat-box">
+        <h4>Total de tareas</h4>
+        <div class="value">${state.totalTasksCompleted}</div>
+      </div>
+      <div class="stat-box">
+        <h4>Corazones ganados</h4>
+        <div class="value">${state.hearts.franco + state.hearts.juana}</div>
+      </div>
+      <div class="stat-box">
+        <h4>Días perfectos</h4>
+        <div class="value">${state.perfectDaysCount}</div>
+      </div>
+      <div class="stat-box">
+        <h4>Regalos repartidos</h4>
+        <div class="value">${state.giftLog.length}</div>
+      </div>
+    </div>
+  </div></div>`;
+
+  // Daily goals detail
+  html += `<div class="card"><div class="card-header">Goals diarios</div><div class="card-body">`;
+  DAYS.forEach((day, idx) => {
+    const stats = getDayStats(idx);
+    if (stats.totalTasks === 0) return;
+    const isToday = isCurrent && idx === today;
+
+    html += `<div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-weight:${isToday?700:500};font-size:0.85rem">
+          ${DAY_SHORT[idx]} ${isToday ? '(hoy)' : ''}
+        </span>
+        <span style="font-size:0.75rem;font-weight:700;color:${stats.totalPct===100?'var(--green)':'var(--text-light)'}">
+          ${stats.totalPct}%
+        </span>
+      </div>`;
+
+    if (stats.francoTotal > 0) {
+      html += `<div class="daily-goal-row" style="border:none;padding:2px 0">
+        <span style="font-size:0.7rem;color:var(--franco);width:50px;font-weight:600">Franco</span>
+        <div class="daily-goal-bar">
+          <div class="daily-goal-fill franco-fill" style="width:${stats.francoPct}%">
+            ${stats.francoPct > 15 ? stats.francoPct+'%' : ''}
+          </div>
+        </div>
+      </div>`;
+    }
+    if (stats.juanaTotal > 0) {
+      html += `<div class="daily-goal-row" style="border:none;padding:2px 0">
+        <span style="font-size:0.7rem;color:var(--juana);width:50px;font-weight:600">Juana</span>
+        <div class="daily-goal-bar">
+          <div class="daily-goal-fill juana-fill" style="width:${stats.juanaPct}%">
+            ${stats.juanaPct > 15 ? stats.juanaPct+'%' : ''}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    html += '</div>';
+  });
+
+  html += '</div></div>';
+
+  // Hearts earned this week
+  html += `<div class="card"><div class="card-header">Corazones ganados esta semana</div>
+    <div class="card-body" style="text-align:center">
+      <div style="display:flex;justify-content:space-around">
+        <div>
+          <div style="font-size:2rem">💙</div>
+          <div style="font-weight:700;color:var(--franco)">Franco</div>
+          <div style="font-size:1.3rem;font-weight:700">+${francoHeartsWeek}</div>
+        </div>
+        <div>
+          <div style="font-size:2rem">💗</div>
+          <div style="font-weight:700;color:var(--juana)">Juana</div>
+          <div style="font-size:1.3rem;font-weight:700">+${juanaHeartsWeek}</div>
+        </div>
+      </div>
+      <div style="font-size:0.75rem;color:var(--text-light);margin-top:8px">
+        +${HEARTS_PER_DAY} ❤️ por cada día completado al 100%
+      </div>
+    </div>
+  </div>`;
+
+  return html;
+}
+
+// ===== SHOP VIEW =====
+let shopPerson = 'Franco';
+
+function renderShop() {
+  let html = '';
+
+  html += `<div class="person-select">
+    <button class="person-btn ${shopPerson==='Franco'?'active-franco':''}"
+      onclick="shopPerson='Franco';render()">Franco ❤️ ${state.hearts.franco}</button>
+    <button class="person-btn ${shopPerson==='Juana'?'active-juana':''}"
+      onclick="shopPerson='Juana';render()">Juana ❤️ ${state.hearts.juana}</button>
+  </div>`;
+
+  const hearts = shopPerson === 'Franco' ? state.hearts.franco : state.hearts.juana;
+  const otherPerson = shopPerson === 'Franco' ? 'Juana' : 'Franco';
+
+  html += `<div class="card"><div class="card-header">
+    Regalos para ${otherPerson}
+    <span style="color:var(--heart);font-size:0.85rem">${hearts} ❤️</span>
+  </div>`;
+
+  state.shop.forEach(item => {
+    const canBuy = hearts >= item.cost;
+    html += `<div class="shop-item">
+      <span class="shop-emoji">${item.emoji}</span>
+      <div class="shop-info">
+        <div class="shop-name">${item.name}</div>
+        <div class="shop-cost">${item.cost} ❤️</div>
+      </div>
+      <button class="shop-buy ${canBuy?'can-buy':'cant-buy'}"
+        onclick="${canBuy ? `buyGift('${shopPerson}',${item.id})` : ''}">
+        ${canBuy ? 'Regalar' : '🔒'}
+      </button>
+    </div>`;
+  });
+
+  html += '</div>';
+
+  if (state.giftLog.length > 0) {
+    html += `<div class="card"><div class="card-header">Historial de regalos</div><div class="card-body">`;
+    state.giftLog.slice().reverse().forEach(g => {
+      html += `<div class="gift-log">
+        <strong>${g.from}</strong> le regaló <strong>"${g.gift}"</strong> a <strong>${g.to}</strong>
+        <span style="color:var(--heart)">(-${g.cost} ❤️)</span>
+        <br><span style="font-size:0.7rem;color:#aaa">${g.date}</span>
+      </div>`;
+    });
+    html += '</div></div>';
+  }
+
+  return html;
+}
+
+function buyGift(fromPerson, shopItemId) {
+  const item = state.shop.find(s => s.id === shopItemId);
+  if (!item) return;
+  const hKey = fromPerson.toLowerCase();
+  if (state.hearts[hKey] < item.cost) return;
+  const toPerson = fromPerson === 'Franco' ? 'Juana' : 'Franco';
+
+  if (!confirm(`¿${fromPerson} le regala "${item.name}" a ${toPerson} por ${item.cost} ❤️?`)) return;
+
+  state.hearts[hKey] -= item.cost;
+  state.giftLog.push({
+    date: new Date().toLocaleDateString('es-AR'),
+    from: fromPerson,
+    to: toPerson,
+    gift: item.name,
+    cost: item.cost,
+  });
+  saveState();
+  checkBadges();
+  showToast(`¡${fromPerson} le regaló "${item.name}" a ${toPerson}! ❤️`);
+  celebrateVictory(toPerson, item.cost);
+  render();
+}
+
+// ===== MANAGE VIEW =====
+function renderManage() {
+  let html = '';
+
+  if (state.tasks.length === 0) {
+    return '<div style="text-align:center;padding:40px;color:var(--text-light)"><div style="font-size:3rem">📝</div><p>Tocá + para agregar tareas.</p></div>';
+  }
+
+  const daily = state.tasks.filter(t => t.days && t.days.length === 7);
+  const someDays = state.tasks.filter(t => t.days && t.days.length > 0 && t.days.length < 7 && !t.biweekly);
+  const biweeklyT = state.tasks.filter(t => t.biweekly);
+
+  function renderGroup(title, tasks) {
+    if (tasks.length === 0) return '';
+    let h = `<div style="font-weight:700;font-size:0.8rem;color:var(--text-light);padding:6px 0;margin-top:8px">${title}</div>`;
+    h += '<div class="card">';
+    tasks.forEach(t => {
+      const daysStr = t.days ? t.days.map(d => DAY_SHORT[d]).join(', ') : '';
+      h += `<div class="manage-item">
+        <div class="manage-info">
+          <div class="manage-name">${t.name}</div>
+          <div class="manage-detail">
+            <span class="size-badge ${t.size}">${t.size}</span>
+            <span class="freq-badge">Turno ${t.group}</span>
+            ${t.cat} · ${daysStr}
+          </div>
+        </div>
+        <div class="manage-actions">
+          <button class="btn-icon" onclick="openEditTask(${t.id})">✏️</button>
+          <button class="btn-icon delete" onclick="deleteTask(${t.id})">🗑️</button>
+        </div>
+      </div>`;
+    });
+    h += '</div>';
+    return h;
+  }
+
+  html += renderGroup('📅 Todos los días', daily);
+  html += renderGroup('📆 Algunos días', someDays);
+  html += renderGroup('🔄 Quincenal', biweeklyT);
+
+  return html;
+}
+
+// ===== CONFIG VIEW =====
+function renderConfig() {
+  const notifOn = state.notificationsEnabled;
+  const darkMode = state.darkMode || false;
+
+  return `
+    <div class="card"><div class="settings-section">
+      <h3>Apariencia</h3>
+      <div class="setting-row">
+        <span style="font-size:0.85rem">Modo oscuro</span>
+        <button class="toggle ${darkMode?'on':''}" onclick="toggleDarkMode()"></button>
+      </div>
+    </div></div>
+
+    <div class="card"><div class="settings-section">
+      <h3>Notificaciones</h3>
+      <div class="setting-row">
+        <span style="font-size:0.85rem">Recordatorio semanal</span>
+        <button class="toggle ${notifOn?'on':''}" onclick="toggleNotifications()"></button>
+      </div>
+    </div></div>
+
+    <div class="card"><div class="settings-section">
+      <h3>Recordatorio diario (Calendario)</h3>
+      <p style="font-size:0.78rem;color:var(--text-light);margin-bottom:10px;line-height:1.5">
+        Descargá un archivo de calendario (.ics) e importalo en Google Calendar, Outlook o Apple Calendar.
+        Te va a crear un evento diario con notificación para que no se olviden de revisar las tareas.
+      </p>
+      <div class="form-group">
+        <label>Hora del recordatorio</label>
+        <select id="calendarTime">
+          <option value="07">7:00 AM</option>
+          <option value="08" selected>8:00 AM</option>
+          <option value="09">9:00 AM</option>
+          <option value="10">10:00 AM</option>
+          <option value="12">12:00 PM</option>
+          <option value="19">7:00 PM</option>
+          <option value="20">8:00 PM</option>
+          <option value="21">9:00 PM</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="exportCalendar('franco')" style="font-size:0.8rem">
+          📅 Franco
+        </button>
+        <button class="btn btn-primary" onclick="exportCalendar('juana')" style="background:var(--juana);font-size:0.8rem">
+          📅 Juana
+        </button>
+      </div>
+    </div></div>
+
+    <div class="card"><div class="settings-section">
+      <h3>Datos</h3>
+      <div class="export-btns">
+        <button class="btn btn-secondary" onclick="exportData()">📤 Exportar</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📥 Importar</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+      </div>
+    </div></div>
+
+    <div class="card"><div class="settings-section">
+      <h3>Restablecer</h3>
+      <p style="font-size:0.75rem;color:var(--text-light);margin-bottom:8px">Vuelve a las tareas y tienda originales. Se pierden corazones y progreso.</p>
+      <button class="btn btn-danger" onclick="resetData()" style="max-width:200px">Restablecer todo</button>
+    </div></div>
+
+    <div class="card"><div class="settings-section">
+      <h3>¿Cómo funciona?</h3>
+      <p style="font-size:0.78rem;color:var(--text-light);line-height:1.6">
+        Las tareas se dividen en <strong>Turno A</strong> y <strong>Turno B</strong>, equilibrados por esfuerzo.
+        Cada semana los turnos <strong>se invierten 180°</strong>: si esta semana Franco es Turno A,
+        la próxima es Turno B (y viceversa para Juana).<br><br>
+        Cada día tiene un <strong>Goal</strong> (objetivo) del 0% al 100%.
+        Al completar el 100% de tus tareas del día, ganás <strong>+${HEARTS_PER_DAY} ❤️</strong>.
+        Esos corazones se pueden canjear en la <strong>Tienda</strong> por regalos amorosos para la otra persona.<br><br>
+        <strong>Nuevas en v3:</strong> XP y Niveles, Logros, Rachas, Estadísticas detalladas, Modo Oscuro.
+      </p>
+    </div></div>
+  `;
+}
+
+// ===== TASK CRUD =====
+function openAddTask() {
+  if (currentTab === 'tienda') { openAddShopItem(); return; }
+  const modal = document.getElementById('modal');
+  modal.innerHTML = `
+    <h2>Nueva tarea</h2>
+    <div class="form-group">
+      <label>Nombre</label>
+      <input type="text" id="taskName" placeholder="Ej: Regar las plantas">
+    </div>
+    <div class="form-group">
+      <label>Categoría</label>
+      <select id="taskCat">
+        ${CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Tamaño</label>
+      <select id="taskSize">
+        <option value="chica">Chica</option>
+        <option value="mediana">Mediana</option>
+        <option value="grande">Grande</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Turno (se invierte cada semana)</label>
+      <select id="taskGroup">
+        <option value="auto">Auto-balancear</option>
+        <option value="A">Turno A</option>
+        <option value="B">Turno B</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Días</label>
+      <div class="days-picker" id="daysPicker">
+        ${DAYS.map((d,i)=>`<span class="day-chip" data-day="${i}" onclick="toggleDayChip(this)">${DAY_SHORT[i]}</span>`).join('')}
+      </div>
+    </div>
+    <div class="form-group">
+      <label><input type="checkbox" id="taskBiweekly"> Quincenal (semana por medio)</label>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveNewTask()">Guardar</button>
+    </div>
+  `;
+  openModal();
+}
+
+function toggleDayChip(el) {
+  el.classList.toggle('selected');
+}
+
+function getSelectedDays() {
+  return Array.from(document.querySelectorAll('.day-chip.selected')).map(el => parseInt(el.dataset.day));
+}
+
+function autoGroup() {
+  const sizeW = {chica:1,mediana:2,grande:3};
+  let wA = 0, wB = 0;
+  state.tasks.forEach(t => {
+    const w = sizeW[t.size] * (t.days ? t.days.length : 0);
+    if (t.group === 'A') wA += w; else wB += w;
+  });
+  return wA <= wB ? 'A' : 'B';
+}
+
+function saveNewTask() {
+  const name = document.getElementById('taskName').value.trim();
+  if (!name) { showToast('Escribí un nombre'); return; }
+  const days = getSelectedDays();
+  if (days.length === 0) { showToast('Elegí al menos un día'); return; }
+
+  let group = document.getElementById('taskGroup').value;
+  if (group === 'auto') group = autoGroup();
+
+  state.tasks.push({
+    id: state.nextId++,
+    name,
+    cat: document.getElementById('taskCat').value,
+    size: document.getElementById('taskSize').value,
+    group,
+    days,
+    biweekly: document.getElementById('taskBiweekly').checked,
+  });
+  saveState(); closeModal();
+  showToast('Tarea agregada ✓');
+  render();
+}
+
+function openEditTask(id) {
+  const task = state.tasks.find(t => t.id === id);
+  if (!task) return;
+  const modal = document.getElementById('modal');
+  modal.innerHTML = `
+    <h2>Editar tarea</h2>
+    <div class="form-group">
+      <label>Nombre</label>
+      <input type="text" id="taskName" value="${task.name}">
+    </div>
+    <div class="form-group">
+      <label>Categoría</label>
+      <select id="taskCat">
+        ${CATEGORIES.map(c=>`<option value="${c}" ${c===task.cat?'selected':''}>${c}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Tamaño</label>
+      <select id="taskSize">
+        <option value="chica" ${task.size==='chica'?'selected':''}>Chica</option>
+        <option value="mediana" ${task.size==='mediana'?'selected':''}>Mediana</option>
+        <option value="grande" ${task.size==='grande'?'selected':''}>Grande</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Turno</label>
+      <select id="taskGroup">
+        <option value="A" ${task.group==='A'?'selected':''}>Turno A</option>
+        <option value="B" ${task.group==='B'?'selected':''}>Turno B</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Días</label>
+      <div class="days-picker" id="daysPicker">
+        ${DAYS.map((d,i)=>`<span class="day-chip ${task.days&&task.days.includes(i)?'selected':''}" data-day="${i}" onclick="toggleDayChip(this)">${DAY_SHORT[i]}</span>`).join('')}
+      </div>
+    </div>
+    <div class="form-group">
+      <label><input type="checkbox" id="taskBiweekly" ${task.biweekly?'checked':''}> Quincenal</label>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEditTask(${id})">Guardar</button>
+    </div>
+  `;
+  openModal();
+}
+
+function saveEditTask(id) {
+  const task = state.tasks.find(t => t.id === id);
+  if (!task) return;
+  const name = document.getElementById('taskName').value.trim();
+  if (!name) { showToast('Escribí un nombre'); return; }
+  const days = getSelectedDays();
+  if (days.length === 0) { showToast('Elegí al menos un día'); return; }
+
+  task.name = name;
+  task.cat = document.getElementById('taskCat').value;
+  task.size = document.getElementById('taskSize').value;
+  task.group = document.getElementById('taskGroup').value;
+  task.days = days;
+  task.biweekly = document.getElementById('taskBiweekly').checked;
+  saveState(); closeModal();
+  showToast('Tarea actualizada ✓');
+  render();
+}
+
+function deleteTask(id) {
+  const task = state.tasks.find(t => t.id === id);
+  if (!task || !confirm(`¿Eliminar "${task.name}"?`)) return;
+  state.tasks = state.tasks.filter(t => t.id !== id);
+  saveState(); showToast('Tarea eliminada'); render();
+}
+
+// ===== SHOP CRUD =====
+function openAddShopItem() {
+  const modal = document.getElementById('modal');
+  modal.innerHTML = `
+    <h2>Nuevo regalo</h2>
+    <div class="form-group">
+      <label>Nombre del regalo</label>
+      <input type="text" id="shopName" placeholder="Ej: Paseo al parque">
+    </div>
+    <div class="form-group">
+      <label>Costo en ❤️</label>
+      <input type="number" id="shopCost" min="5" step="5" value="20">
+    </div>
+    <div class="form-group">
+      <label>Emoji</label>
+      <input type="text" id="shopEmoji" value="🎁" maxlength="2">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveNewShopItem()">Guardar</button>
+    </div>
+  `;
+  openModal();
+}
+
+function saveNewShopItem() {
+  const name = document.getElementById('shopName').value.trim();
+  if (!name) { showToast('Escribí un nombre'); return; }
+  const cost = parseInt(document.getElementById('shopCost').value) || 20;
+  const emoji = document.getElementById('shopEmoji').value || '🎁';
+  state.shop.push({ id: state.nextShopId++, name, cost, emoji });
+  saveState(); closeModal();
+  showToast('Regalo agregado ✓'); render();
+}
+
+// ===== MODAL HELPERS =====
+function openModal() { document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function closeModalOutside(e) { if (e.target.id === 'modalOverlay') closeModal(); }
+
+// ===== NOTIFICATIONS =====
+function toggleNotifications() {
+  if (!state.notificationsEnabled) {
+    if ('Notification' in window) {
+      Notification.requestPermission().then(p => {
+        state.notificationsEnabled = p === 'granted';
+        saveState(); render();
+        showToast(p === 'granted' ? 'Notificaciones activadas' : 'Permiso denegado');
+      });
+    }
+  } else {
+    state.notificationsEnabled = false; saveState(); render();
+    showToast('Notificaciones desactivadas');
+  }
+}
+
+// ===== DARK MODE =====
+function toggleDarkMode() {
+  state.darkMode = !state.darkMode;
+  document.body.classList.toggle('dark-mode', state.darkMode);
+  saveState();
+  render();
+}
+
+// ===== DATA =====
+function exportCalendar(person) {
+  const hour = document.getElementById('calendarTime').value;
+  const name = person === 'franco' ? 'Franco' : 'Juana';
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth()+1).padStart(2,'0');
+  const d = String(now.getDate()).padStart(2,'0');
+  const stamp = `${y}${m}${d}T${hour}0000`;
+  const nowStamp = `${y}${m}${d}T${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}00`;
+
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Franco & Juana//Tareas Hogar//ES',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `DTSTART:${stamp}`,
+    `DTSTAMP:${nowStamp}`,
+    `UID:tareas-hogar-${person}@franco-juana`,
+    'RRULE:FREQ=DAILY',
+    `SUMMARY:🏠 ${name}, ¡revisá tus tareas del hogar!`,
+    `DESCRIPTION:Abrí la app de tareas para ver qué te toca hoy. \\n\\n¡Completá todo para ganar ❤️!`,
+    'DURATION:PT10M',
+    'BEGIN:VALARM',
+    'TRIGGER:PT0M',
+    'ACTION:DISPLAY',
+    `DESCRIPTION:${name}, tus tareas del hogar te esperan`,
+    'END:VALARM',
+    'BEGIN:VALARM',
+    'TRIGGER:-PT5M',
+    'ACTION:DISPLAY',
+    `DESCRIPTION:En 5 min: revisar tareas del hogar`,
+    'END:VALARM',
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ].join('\r\n');
+
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `tareas-hogar-${person}.ics`;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 200);
+  showToast(`Calendario de ${name} descargado ✓`);
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'tareas-franco-juana.json';
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blob);
+  }, 200);
+  showToast('Exportado ✓');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imp = JSON.parse(e.target.result);
+      if (imp.tasks) {
+        state = migrateState(imp);
+        saveState(); showToast('Importado ✓'); render();
+      }
+    } catch { showToast('Error al importar'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function resetData() {
+  if (!confirm('¿Restablecer TODO? Se pierden tareas, corazones, regalos y progreso.')) return;
+  state = getDefaultState(); saveState(); showToast('Restablecido'); render();
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===== INIT =====
+if (state.darkMode) document.body.classList.add('dark-mode');
+render();
+
+// Monitor conexión Firebase
+const syncEl = document.getElementById('syncStatus');
+const connRef = firebase.database().ref('.info/connected');
+connRef.on('value', (snap) => {
+  syncEl.textContent = snap.val() ? '🟢 sync' : '🔴 offline';
+});
+
+// Si es la primera vez (no hay datos en Firebase), subir estado local
+stateRef.once('value', (snap) => {
+  if (!snap.val()) {
+    stateRef.set(JSON.parse(JSON.stringify(state)));
+  }
+});
+</script>
+</body>
+</html>
