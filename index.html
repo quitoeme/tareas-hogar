@@ -945,6 +945,7 @@ function loadState() {
 }
 
 function migrateState(s) {
+  if (!s.completions) s.completions = {};
   if (!s.hearts) s.hearts = { franco: 0, juana: 0 };
   if (!s.heartsClaimed) s.heartsClaimed = {};
   if (!s.giftLog) s.giftLog = [];
@@ -1131,7 +1132,7 @@ function compKey(dayIdx, taskId) {
 }
 
 function isCompleted(dayIdx, taskId) {
-  return !!state.completions[compKey(dayIdx, taskId)];
+  return !!(state.completions && state.completions[compKey(dayIdx, taskId)]);
 }
 
 function toggleCompletion(dayIdx, taskId) {
