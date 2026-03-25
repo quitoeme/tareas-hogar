@@ -539,6 +539,67 @@
     .header h1 { font-size: 1.3rem; }
     .content { padding: 14px; }
   }
+
+  /* ===== LOGIN SCREEN ===== */
+  .login-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, #faf8f3 0%, #e8f3eb 50%, #fdf6e3 100%);
+    z-index: 9999; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  body.dark-mode .login-overlay {
+    background: linear-gradient(135deg, #1c1a17 0%, #1a2e1f 50%, #2a2518 100%);
+  }
+  .login-overlay.hidden { display: none; }
+  .login-card {
+    background: var(--card); border-radius: 20px; padding: 32px 28px;
+    box-shadow: 0 8px 32px rgba(120,100,70,0.12); max-width: 360px; width: 100%;
+    text-align: center; border: 1px solid var(--border);
+  }
+  .login-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 4px; }
+  .login-subtitle { font-size: 0.85rem; color: var(--text-light); margin-bottom: 24px; }
+  .login-profiles { display: flex; gap: 12px; margin-bottom: 20px; }
+  .login-profile {
+    flex: 1; padding: 16px 8px; border-radius: 14px; cursor: pointer;
+    border: 3px solid var(--border); background: none; transition: all 0.2s;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .login-profile:hover { transform: translateY(-2px); }
+  .login-profile.selected-franco { border-color: var(--franco); background: var(--franco-wash); }
+  .login-profile.selected-juana { border-color: var(--juana); background: var(--juana-wash); }
+  .login-profile .avatar { font-size: 2.5rem; }
+  .login-profile .name { font-weight: 700; font-size: 1rem; color: var(--text); }
+  .login-pw {
+    width: 100%; padding: 12px 16px; border-radius: 12px; border: 2px solid var(--border);
+    font-size: 1rem; background: var(--bg); color: var(--text); margin-bottom: 16px;
+    text-align: center; outline: none; transition: border-color 0.2s;
+  }
+  .login-pw:focus { border-color: var(--franco); }
+  .login-pw.error { border-color: var(--red); animation: shake 0.4s; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+  .login-btn {
+    width: 100%; padding: 14px; border-radius: 12px; border: none;
+    font-size: 1rem; font-weight: 700; color: white; cursor: pointer;
+    background: linear-gradient(135deg, var(--franco), var(--juana));
+    transition: all 0.2s; opacity: 0.5; pointer-events: none;
+  }
+  .login-btn.ready { opacity: 1; pointer-events: auto; }
+  .login-btn.ready:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(120,100,70,0.2); }
+  .login-error { color: var(--red); font-size: 0.8rem; margin-top: 8px; min-height: 20px; }
+
+  /* ===== PROFILE BADGE IN HEADER ===== */
+  .profile-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .profile-badge.franco { background: rgba(201,168,76,0.3); }
+  .profile-badge.juana { background: rgba(126,174,139,0.3); }
+  .profile-badge:hover { opacity: 0.8; }
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -546,9 +607,34 @@
 </head>
 <body>
 
+<!-- LOGIN SCREEN -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-title">🏠</div>
+    <div class="login-subtitle">Franco & Juana — Tareas del Hogar</div>
+    <div class="login-profiles">
+      <button class="login-profile" id="loginFranco" onclick="selectProfile('franco')">
+        <span class="avatar">👨</span>
+        <span class="name">Franco</span>
+      </button>
+      <button class="login-profile" id="loginJuana" onclick="selectProfile('juana')">
+        <span class="avatar">👩</span>
+        <span class="name">Juana</span>
+      </button>
+    </div>
+    <input type="password" class="login-pw" id="loginPw" placeholder="Contraseña" onkeyup="checkLoginReady(event)">
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
 <div class="header">
-  <h1>Franco & Juana 🏠</h1>
-  <div class="subtitle">Tareas del Hogar v3 <span id="syncStatus" style="font-size:0.6rem; opacity:0.7;">⏳ conectando...</span></div>
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <span class="profile-badge" id="profileBadge" onclick="doLogout()" title="Cerrar sesión"></span>
+    <h1 style="flex:1">Franco & Juana 🏠</h1>
+    <span id="syncStatus" style="font-size:0.6rem; opacity:0.7;">⏳</span>
+  </div>
+  <div class="subtitle">Tareas del Hogar v3</div>
   <div class="header-stats">
     <div class="stat-item">
       <span id="streakDisplay" style="font-size:1.2rem;">🔥 0</span>
@@ -673,6 +759,71 @@
 </svg>
 
 <script>
+// ===== LOGIN SYSTEM =====
+const APP_PASSWORD = 'mateololasukizafira';
+let currentUser = sessionStorage.getItem('tareas-user') || null;
+let selectedProfile = null;
+
+function selectProfile(who) {
+  selectedProfile = who;
+  document.getElementById('loginFranco').className = 'login-profile' + (who === 'franco' ? ' selected-franco' : '');
+  document.getElementById('loginJuana').className = 'login-profile' + (who === 'juana' ? ' selected-juana' : '');
+  checkLoginReady();
+  document.getElementById('loginPw').focus();
+}
+
+function checkLoginReady(e) {
+  const pw = document.getElementById('loginPw').value;
+  const btn = document.getElementById('loginBtn');
+  btn.className = 'login-btn' + (selectedProfile && pw.length > 0 ? ' ready' : '');
+  document.getElementById('loginError').textContent = '';
+  document.getElementById('loginPw').classList.remove('error');
+  if (e && e.key === 'Enter' && selectedProfile && pw.length > 0) doLogin();
+}
+
+function doLogin() {
+  const pw = document.getElementById('loginPw').value;
+  if (pw !== APP_PASSWORD) {
+    document.getElementById('loginError').textContent = 'Contraseña incorrecta';
+    document.getElementById('loginPw').classList.add('error');
+    setTimeout(() => document.getElementById('loginPw').classList.remove('error'), 500);
+    return;
+  }
+  currentUser = selectedProfile;
+  sessionStorage.setItem('tareas-user', currentUser);
+  document.getElementById('loginOverlay').classList.add('hidden');
+  updateProfileBadge();
+  render();
+}
+
+function doLogout() {
+  if (!confirm('¿Cerrar sesión?')) return;
+  currentUser = null;
+  selectedProfile = null;
+  sessionStorage.removeItem('tareas-user');
+  document.getElementById('loginOverlay').classList.remove('hidden');
+  document.getElementById('loginPw').value = '';
+  document.getElementById('loginBtn').className = 'login-btn';
+  document.getElementById('loginFranco').className = 'login-profile';
+  document.getElementById('loginJuana').className = 'login-profile';
+  document.getElementById('loginError').textContent = '';
+}
+
+function updateProfileBadge() {
+  const badge = document.getElementById('profileBadge');
+  if (!currentUser) { badge.style.display = 'none'; return; }
+  badge.style.display = 'inline-flex';
+  const name = currentUser === 'franco' ? 'Franco' : 'Juana';
+  const emoji = currentUser === 'franco' ? '👨' : '👩';
+  badge.className = 'profile-badge ' + currentUser;
+  badge.innerHTML = `${emoji} ${name} ✕`;
+}
+
+// Check if already logged in
+if (currentUser) {
+  document.getElementById('loginOverlay').classList.add('hidden');
+}
+
 // ===== CONSTANTS =====
 const DAYS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 const DAY_SHORT = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
@@ -1174,6 +1325,7 @@ function updateHeader() {
   document.getElementById('francoLevelName').textContent = LEVEL_NAMES[francoLv - 1] || 'Deidad';
   document.getElementById('juanaLevelDisplay').textContent = `Lv${juanaLv}`;
   document.getElementById('juanaLevelName').textContent = LEVEL_NAMES[juanaLv - 1] || 'Deidad';
+  updateProfileBadge();
 }
 
 // ===== TODAY VIEW =====
@@ -1575,7 +1727,50 @@ function renderProgress() {
 let shopPerson = 'Franco';
 
 function renderShop() {
+  // Auto-set to logged in user
+  if (currentUser) shopPerson = currentUser === 'franco' ? 'Franco' : 'Juana';
+
   let html = '';
+
+  // Show personal stats card
+  if (currentUser) {
+    const me = currentUser;
+    const myName = me === 'franco' ? 'Franco' : 'Juana';
+    const myHearts = state.hearts[me];
+    const myXp = state[me].xp;
+    const myLv = getLevel(myXp);
+    const myLvName = LEVEL_NAMES[myLv - 1] || 'Deidad';
+    const myGifts = state.giftLog.filter(g => g.from === myName);
+    const myReceived = state.giftLog.filter(g => g.to === myName);
+
+    html += `<div class="card" style="border:2px solid ${me==='franco'?'var(--franco)':'var(--juana)'}">
+      <div class="card-header">Mi Perfil — ${myName} ${me==='franco'?'👨':'👩'}</div>
+      <div class="card-body">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; text-align:center;">
+          <div style="background:${me==='franco'?'var(--franco-wash)':'var(--juana-wash)'}; padding:12px; border-radius:12px;">
+            <div style="font-size:1.5rem">❤️</div>
+            <div style="font-size:1.4rem; font-weight:700">${myHearts}</div>
+            <div style="font-size:0.7rem; color:var(--text-light)">Corazones</div>
+          </div>
+          <div style="background:${me==='franco'?'var(--franco-wash)':'var(--juana-wash)'}; padding:12px; border-radius:12px;">
+            <div style="font-size:1.5rem">⭐</div>
+            <div style="font-size:1.4rem; font-weight:700">Lv${myLv}</div>
+            <div style="font-size:0.7rem; color:var(--text-light)">${myLvName} · ${myXp} XP</div>
+          </div>
+          <div style="background:${me==='franco'?'var(--franco-wash)':'var(--juana-wash)'}; padding:12px; border-radius:12px;">
+            <div style="font-size:1.5rem">🎁</div>
+            <div style="font-size:1.4rem; font-weight:700">${myGifts.length}</div>
+            <div style="font-size:0.7rem; color:var(--text-light)">Regalos dados</div>
+          </div>
+          <div style="background:${me==='franco'?'var(--franco-wash)':'var(--juana-wash)'}; padding:12px; border-radius:12px;">
+            <div style="font-size:1.5rem">💝</div>
+            <div style="font-size:1.4rem; font-weight:700">${myReceived.length}</div>
+            <div style="font-size:0.7rem; color:var(--text-light)">Regalos recibidos</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
 
   html += `<div class="person-select">
     <button class="person-btn ${shopPerson==='Franco'?'active-franco':''}"
@@ -1609,12 +1804,20 @@ function renderShop() {
 
   html += '</div>';
 
-  if (state.giftLog.length > 0) {
-    html += `<div class="card"><div class="card-header">Historial de regalos</div><div class="card-body">`;
-    state.giftLog.slice().reverse().forEach(g => {
+  // Historial filtrado por usuario logueado
+  const myName = currentUser ? (currentUser === 'franco' ? 'Franco' : 'Juana') : null;
+  const myLog = myName
+    ? state.giftLog.filter(g => g.from === myName || g.to === myName)
+    : state.giftLog;
+
+  if (myLog.length > 0) {
+    html += `<div class="card"><div class="card-header">${myName ? 'Mi historial de regalos' : 'Historial de regalos'}</div><div class="card-body">`;
+    myLog.slice().reverse().forEach(g => {
+      const isMine = g.from === myName;
       html += `<div class="gift-log">
-        <strong>${g.from}</strong> le regaló <strong>"${g.gift}"</strong> a <strong>${g.to}</strong>
-        <span style="color:var(--heart)">(-${g.cost} ❤️)</span>
+        ${isMine ? '🎁 Le regalaste' : '💝 Recibiste'} <strong>"${g.gift}"</strong>
+        ${isMine ? 'a <strong>'+g.to+'</strong>' : 'de <strong>'+g.from+'</strong>'}
+        <span style="color:var(--heart)">${isMine ? '(-'+g.cost+' ❤️)' : ''}</span>
         <br><span style="font-size:0.7rem;color:#aaa">${g.date}</span>
       </div>`;
     });
@@ -2101,6 +2304,7 @@ function showToast(msg) {
 
 // ===== INIT =====
 if (state.darkMode) document.body.classList.add('dark-mode');
+updateProfileBadge();
 render();
 
 // Monitor conexión Firebase
