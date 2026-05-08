@@ -622,7 +622,7 @@
         <span class="name">Juana</span>
       </button>
     </div>
-    <input type="password" class="login-pw" id="loginPw" placeholder="Contraseña" onkeyup="checkLoginReady(event)">
+    <input type="password" class="login-pw" id="loginPw" placeholder="Contraseña" onkeyup="checkLoginReady(event)" style="display:none;">
     <button class="login-btn" id="loginBtn" onclick="doLogin()">Entrar</button>
     <div class="login-error" id="loginError"></div>
   </div>
@@ -760,7 +760,7 @@
 
 <script>
 // ===== LOGIN SYSTEM =====
-const APP_PASSWORD = 'mateololasukizafira';
+const APP_PASSWORD = 'Verderillo0505';
 let currentUser = sessionStorage.getItem('tareas-user') || null;
 let selectedProfile = null;
 
@@ -769,26 +769,17 @@ function selectProfile(who) {
   document.getElementById('loginFranco').className = 'login-profile' + (who === 'franco' ? ' selected-franco' : '');
   document.getElementById('loginJuana').className = 'login-profile' + (who === 'juana' ? ' selected-juana' : '');
   checkLoginReady();
-  document.getElementById('loginPw').focus();
 }
 
 function checkLoginReady(e) {
-  const pw = document.getElementById('loginPw').value;
   const btn = document.getElementById('loginBtn');
-  btn.className = 'login-btn' + (selectedProfile && pw.length > 0 ? ' ready' : '');
+  btn.className = 'login-btn' + (selectedProfile ? ' ready' : '');
   document.getElementById('loginError').textContent = '';
-  document.getElementById('loginPw').classList.remove('error');
-  if (e && e.key === 'Enter' && selectedProfile && pw.length > 0) doLogin();
+  if (e && e.key === 'Enter' && selectedProfile) doLogin();
 }
 
 function doLogin() {
-  const pw = document.getElementById('loginPw').value;
-  if (pw !== APP_PASSWORD) {
-    document.getElementById('loginError').textContent = 'Contraseña incorrecta';
-    document.getElementById('loginPw').classList.add('error');
-    setTimeout(() => document.getElementById('loginPw').classList.remove('error'), 500);
-    return;
-  }
+  if (!selectedProfile) return;
   currentUser = selectedProfile;
   sessionStorage.setItem('tareas-user', currentUser);
   document.getElementById('loginOverlay').classList.add('hidden');
